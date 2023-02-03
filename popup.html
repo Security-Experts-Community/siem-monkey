@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<script src="libs/jquery/jquery-3.5.1.min.js"></script>
+		<script src="libs/jquery-ui-1.12.1/jquery-ui.js"></script>
+		<script src="libs/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
+		<script src="libs/underscore.js/underscore-min.js"></script>
+		<script src="libs/moment.js/moment.min.js"></script>
+		<script src="libs/d3.js/d3.v4.min.js"></script>
+
+		<script src="update.popup.js"></script>
+		<script src="processTree.popup.js"></script>
+		<script src="popup.js"></script>
+
+		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.12.1/jquery-ui.min.css">
+		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-timepicker/jquery-ui-timepicker-addon.css">
+		<!-- <link rel="stylesheet" type="text/css" href="libs/bootstrap-glyphicons.css" > -->
+		<link rel="stylesheet" type="text/css" href="popup.css">
+		<style>
+
+
+.node text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
+
+            div.filename {
+				white-space: nowrap;
+				display: inline;
+			}
+			div.monkeylinks {
+				margin-left: 5px;
+    			margin-top: 5px;
+			}
+			div.usefullfilters {
+				margin-left: 5px;
+    			margin-top: 5px;
+			}
+			div.baseparams {
+				margin-left: 5px;
+    			margin-top: 5px;
+			}
+        </style>
+	
+	<title></title>
+	</head>
+	<body class="">
+		<div id="tabs" class="tabs">
+			<ul>
+			  <li><a href="#tabs-0">Процессы</a></li>
+			  <li><a href="#tabs-1">Полезные фильтры</a></li>
+			  <li><a href="#tabs-2">Внешние запросы</a></li>
+			  <li><a href="#tabs-3">About</a></li>
+			</ul>
+			<div id="tabs-0">
+				<div>
+					<span class="baseparams oneline">
+						Максимальное число событий:
+						<input type="text" id="count" name="count" size="2" value="1000" style="text-align:right;">
+						С: <input type="text" id="datepickerFrom" size="15" style="text-align:center;">
+						По: <input type="text" id="datepickerTo" size="15" style="text-align:center;"> 
+					
+						<div id='processStartMsgidDiv' >sysmon 1</div>
+					
+						<label class="switch">
+							<input type="checkbox" id="processstartmsgidcheckbox">
+							<span class="slider round"></span>
+						</label>
+			
+						<div>
+							<a id="siemurl" href="#" target="_blank">средняя кнопка = работа в новой вкладке</a>
+						</div>
+					</span>
+
+					<div class="monkeylinks" id="mlinks">
+					</div>
+			
+				</div>
+			</div>
+			<div id="tabs-1">
+				<div class="usefullfiltersdiv" >Полезные фиьтры
+					<div class="usefullfilters"  id="filters"></div>
+				</div>
+			</div>
+			<div id="tabs-2">
+				<span class = "oneline" id="userprofile">
+				</span>
+			</div>
+				<div id="tabs-3">
+					<h1 id="siemmonkey">SiemMonkey</h1>
+					<h2 id="-google-chrome-mp-siem">Плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM</h2>
+				</div>
+			</div>
+		</div>
+		<div id="output"></div>
+		<div class="modal"></div>
+	</body>
+</html>

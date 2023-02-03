@@ -1,0 +1,294 @@
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+   .modal {
+    display:    none;
+    z-index:    1000;
+    padding: 15pt;
+    position: sticky;
+    height: 150px;
+    background: rgba(255, 255, 255, 0) 
+                url("loading.gif") 
+                no-repeat;
+    background-size: 160px;
+    /*background-origin: content-box;*/
+    background-position-x: 15px;
+    background-position-y: 15px;
+}
+body {
+width:800px;
+height: 400px;
+}
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading .modal {
+    overflow: hidden;
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}
+
+
+* { font-family:Roboto,Helvetica Neue,sans-serif; font-size:10px; }
+
+    /*ul li {
+        padding:1px;
+        background-color:rgb(255, 255, 255);
+    }
+        ul li > div { padding:1px; background-color:rgb(255, 255, 255); }
+        ul li > div + ul { margin-top:1px; }
+        ul li ul { margin-left:1px; }*/
+
+
+.parent {
+    color: white;
+    background-color:  #2196F3;
+    padding-top: 1px;
+    margin-top: 2px;
+    margin-left: 2px;
+    padding-left: 5px;
+    border: 1px solid black; 
+}
+
+.child {
+    background-color: #0175c3;
+    color: ghostwhite;
+    margin-left: 10px;
+    margin-top:5px;
+    padding-left: 5px;
+}
+div.usefullfiltersdiv {
+  font-size: 12px;
+  font-weight: bold;
+  border: none;
+  display: inline;
+  line-height: 1.8;
+  color: #338fcc;
+  text-decoration: none!important;
+  transition-property: color;
+  transition-duration: .33s;
+  transition-timing-function: ease-out;
+  display: block;
+}
+
+div.usefullfilters {
+  display: inline;
+  line-height: 1.8;
+  color: #338fcc;
+  text-decoration: none!important;
+  transition-property: color;
+  transition-duration: .33s;
+  transition-timing-function: ease-out;
+  display: block;
+  cursor: pointer;
+}
+
+div.monkey {
+    display: inline;
+    line-height: 1.4;
+    color: #338fcc;
+    text-decoration: none!important;
+    transition-property: color;
+    transition-duration: .33s;
+    transition-timing-function: ease-out;
+    display: block;
+    cursor: pointer;
+}
+
+div.monkeysessionslinks {
+  margin-left: 10px;
+}
+
+div.monkeylinks {
+    display: inline-block;
+    /*background: lightgray;*/
+}
+
+div.extlink {
+    color:#338fcc;
+    margin-left: 10px;
+    margin-top:5px;
+    cursor: pointer; 
+}
+
+div.rdgsrc {
+    color:#338fcc;
+    margin-left: 10px;
+    margin-top:5px;
+    /*cursor: pointer; */
+}
+
+div.systemProcesses {
+    color:rgb(119, 41, 41)
+}
+
+div.systemDwmOrUmfdProcesses {
+    color:darkgray
+}
+
+li .alarm {
+    color: coral;
+}
+
+  /* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 14px;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  /* The slider */
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 10px;
+    width: 10px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #2bb13d;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(22px);
+    -ms-transform: translateX(22px);
+    transform: translateX(22px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+    border-radius: 26px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+  .checkbox_left {
+    float: left;
+  }
+
+  .btn {
+    position: relative;
+    display: inline-block;
+    padding: 1px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    color: #333;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #eee;
+    background-image: linear-gradient(#fcfcfc,#eee);
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-appearance: none
+}
+
+span.oneline
+{
+  display: inline;
+}
+
+.openMsgs
+{
+  cursor: pointer;
+  margin-left: 10px;   
+  margin-top: 10px;
+  font-weight: bold;
+  color: #338fcc;
+}
+
+.parameter
+{
+  font-weight: bold;
+  color: #cc3333;
+}
+
+.good
+{
+  font-weight: bold;
+  color: #08f108;
+}
+.susp
+{
+  font-weight: bold;
+  color: #a03f3f;
+}
+.danger
+{
+  font-weight: bold;
+  color: #f00;
+}
+
+div.hashoutput {
+  margin-left: 5px;
+  margin-top: 5px;
+  display: inline;
+  line-height: 1.4;
+  color: #338fcc;
+  text-decoration: none!important;
+  transition-property: color;
+  transition-duration: .33s;
+  transition-timing-function: ease-out;
+  display: block;
+}
+
+.node rect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: 1;
+  /*stroke: #3182bd;
+  stroke-width: 1.5px;*/
+}
+
+.node rect.noderect {
+  cursor: pointer;
+  fill: #fff;
+  fill-opacity: 1;
+  stroke: #3182bd;
+  stroke-width: 1.5px;
+}
+
+.tabs {
+  width:780px;
+}

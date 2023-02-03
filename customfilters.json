@@ -1,0 +1,22 @@
+[
+    {"description":"События subject.name = '${subject.name}'","filter":"subject.name = '${subject.name}'"},
+    {"description":"События subject.name = '${subject.name}' or object.name = '${subject.name}'","filter":"subject.name = '${subject.name}' or object.name = '${subject.name}'"},
+    {"description":"События subject.account.name = '${subject.account.name}'","filter":"subject.account.name = '${subject.account.name}'"},
+    {"description":"События subject.account.name = '${subject.account.name}' or object.account.name = '${subject.account.name}'","filter":"subject.account.name = '${subject.account.name}' or object.account.name = '${subject.account.name}'"},
+    {"description":"Сетевые соединения для ${src.ip}","filter":"object in ['flow', 'connection'] and  protocol in ['TCP', 'tcp', '6'] and src.ip = '${src.ip}' or dst.ip = '${src.ip}'"},
+    {"description":"Сетевые соединения для ${dst.ip}","filter":"object in ['flow', 'connection'] and  protocol in ['TCP', 'tcp', '6'] and src.ip = '${dst.ip}' or dst.ip = '${dst.ip}'"},
+    {"description":"События x.x.x.x:${src.port} ⇄ ${dst.ip}:${dst.port}","filter":"src.port = '${src.port}' and dst.ip = '${dst.ip}' and dst.port=${dst.port}"},
+    {"description":"Все события процесса ${subject.process.guid} (sysmon, на основе subject.process.guid)","filter":"event_src.host = '${event_src.host}' and (subject.process.guid = '${subject.process.guid}' or object.process.guid = '${subject.process.guid}')"},
+    {"description":"Все события процесса ${object.process.guid} (sysmon, на основе object.process.guid)","filter":"event_src.host = '${event_src.host}' and (subject.process.guid = '${object.process.guid}' or object.process.guid = '${object.process.guid}')"},
+    {"description":"Все важные корреляции на хосте ${event_src.host}", "filter":"((correlation_name and !(correlation_name contains 'subrule') and detect != 'false')) and (event_src.host = '${event_src.host}')"},
+    {"description":"Найти события, связанные с файлом ${object.name} на хосте ${event_src.host}, где есть хеш", "filter":"(event_src.host = '${event_src.host}') and (object.name = '${object.name}') AND (object.hash)"},
+    {"description":"Сетевые коннекты файла ${object.process.fullpath}", "filter":"event_src.host = '${event_src.host}' and msgid = 3 AND (object.process.fullpath = '${object.process.fullpath}')"},
+    {"description":"События логина и открытия сессий для УЗ ${subject.name}", "filter":"subject.name = '${subject.name}' AND (action = 'login' or msgid in [1149,4778])"},
+    {"description":"Информация о сессиях RDP для пользователя ${subject.account.name}", "filter":"subject.account.name = '${subject.account.name}' and msgid in [4778,4779]"},
+    {"description":"Информация о сессиях RDP для хоста ${event_src.host}", "filter":"event_src.host = '${event_src.host}' and msgid in [4778,4779]"},
+    {"description":"Информация о сессиях RDP с адреса ${src.ip}", "filter":"src.ip = '${src.ip}' and msgid in [4778,4779]"},
+    {"description":"Все события запуска процессов для учетной записи ${subject.account.name}", "filter":"msgid in [1,4688] and subject.account.name = '${subject.account.name}'"},
+    {"description":"Найти все события для запуска файла с хешем ${object.hash}","filter": "msgid=1 and object.process.hash = '${object.process.hash}'"},
+    {"description":"События подключения к ${nad_dst_ip}:${nad_dst_port} в SIEM (для поиска из NAD)", "filter":"dst.ip = ${nad_dst_ip} and dst.port = ${nad_dst_port}", "requesturl":""},
+    {"description":"События подключения  ${nad_src_ip}:${nad_src_port} ⇄ ${nad_dst_ip}:${nad_dst_port} в SIEM (для поиска из NAD)", "filter":"src.ip = ${nad_src_ip} and src.port = ${nad_src_port} and dst.ip = ${nad_dst_ip} and dst.port = ${nad_dst_port}", "requesturl":""}
+]
