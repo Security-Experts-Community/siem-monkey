@@ -1,6 +1,12 @@
-# SiemMonkey
+# SiemMonkey - плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM
 
-# Плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM
+## Репозитории проекта
+Основной:
+- GitHub: https://github.com/Security-Experts-Community/siem-monkey
+
+Зеркала:
+- Codeberg: https://codeberg.org/Security-Experts-Community/siem-monkey
+- GitFlic: https://gitflic.ru/project/security-experts-community/siem-monkey
 
 # Основные функции
 - [Popup](#popup):  
@@ -9,6 +15,10 @@
 - [UI SIEM](#ui-siem):
     * выполнение некоторых действий по клику на определенные поля события в правой панели 
     * возможность расширения правой панели с информацией о событии на достаточную ширину 
+
+**Поддерживаемые версии:**
+- MP SIEM R25  
+- PT NAD 11  
 
 # Подробное описание
 # Popup
