@@ -199,11 +199,9 @@ async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", tt
                         "timeFrom":tfrom,
                         "timeTo":tto};
             $(`#output${outputelemsuffix}`).text("Ожидайте...");
-            let img = document.createElement("IMG");
-            img.classList.add("loading");
-            let iconUrl = chrome.extension.getURL("loading.gif");
-            img.src = iconUrl;
-            $(`#output${outputelemsuffix}`).html(img); 
+            let loading = document.createElement("div");
+            loading.classList.add("lds-dual-ring");
+            $(`#output${outputelemsuffix}`).html(loading); 
 
             $.ajax({
               type: "POST",
@@ -214,6 +212,7 @@ async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", tt
               success: function(msg)
               {
                   $(".loading").remove();
+                  loading.remove();
                   let events = msg['events'];
                   callback(events, outputelemsuffix);
               },
@@ -400,9 +399,6 @@ function ProcessHandler(addedNode) {
       gtto = ttimeto;
       treeBranchEvents = [];
       getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranchReverse, "", ttimeto - 86400 - 600, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
-      
-      //getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranchReverse);
-      
     });
   }
 }

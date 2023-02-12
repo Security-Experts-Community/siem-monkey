@@ -1,112 +1,80 @@
-/* Dropdown Button */
 .monkeydropbtn {
     color: white;
     font-size: 16px;
     border: none;
   }
   
-  /* The container <div> - needed to position the dropdown content */
-  .monkeydropdown {
-    position: relative;
-    display: inline-block;
-  }
+.monkeydropdown {
+  position: relative;
+  display: inline-block;
+}
   
-  /* Dropdown Content (Hidden by Default) */
-  .monkeydropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    min-width: 360px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
+.layout-row .flex-30
+{
+  flex: unset;
+  width: 140px;
+}
   
-  /* Links inside the dropdown */
-  .monkeydropdown-content a {
-    color: black;
-    padding: 5px 10px;
-    text-decoration: none;
-    display: block;
-  }
-  
-  /* Change color of dropdown links on hover */
-  .monkeydropdown-content a:hover {
-      background-color: #ddd;
-      cursor: pointer; 
-    }
-  
-  .monkeydropdown:hover .monkeydropdown-content {display: block;}
-  
-  .monkeydropdown:hover .monkeydropbtn {background-color: #104f48;}
-
-  .layout-row .flex-30
-  {
-    flex: unset;
-    width: 140px;
-  }
-  
-  .layout-row .mc-dl.mc-dl_horizontal .mc-dt
-  {
-    width: 180px;
-  }
-
-  div.mc-dt[title="object.hash"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="object.process.hash"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="object.process.parent.hash"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="subject.process.hash"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="subject.process.parent.hash"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="external_link"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="task_id"] { 
-    color: red; 
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="src.ip"] { 
-    color: rgb(64, 204, 51);
-    cursor: pointer; 
-  }
-
-  div.mc-dt[title="dst.ip"] { 
-    color: rgb(64, 204, 51);
-    cursor: pointer; 
-  }
-
-  span.ip-check-external-link{
-    box-sizing: border-box;
-    color: rgb(64, 204, 51);
-    cursor: pointer;
-    display: none;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-    font-size: 13px;
-    height: 18px;
-    line-height: 18.2px;
-    overflow: hidden;
+.layout-row .mc-dl.mc-dl_horizontal .mc-dt
+{
+  width: 180px;
 }
 
+div.mc-dt[title="object.hash"] { 
+  color: red; 
+  cursor: pointer; 
+}
+div.mc-dt[title="object.process.hash"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="object.process.parent.hash"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="subject.process.hash"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="subject.process.parent.hash"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="external_link"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="task_id"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
+div.mc-dt[title="src.ip"] { 
+  color: rgb(64, 204, 51);
+  cursor: pointer; 
+}
+
+div.mc-dt[title="dst.ip"] { 
+  color: rgb(64, 204, 51);
+  cursor: pointer; 
+}
+
+span.ip-check-external-link{
+  color: rgb(64, 204, 51);
+  box-sizing: border-box;
+  cursor: pointer;
+  display: none;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 13px;
+  height: 18px;
+  line-height: 18.2px;
+  overflow: hidden;
+}
 
 .node rect {
   cursor: pointer;
@@ -152,4 +120,28 @@ div.openMsgs
   margin-top: 10px;
   font-weight: bold;
   color: #338fcc;
+}
+
+.lds-dual-ring {
+  display: inline-block;
+}
+
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #338fcc;
+  border-color: #338fcc transparent #338fcc transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

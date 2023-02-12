@@ -139,5 +139,8 @@
 Убрано ограничение на максимальную ширину правой панели (панели события).
 
 
-Иконка
-[Monkey icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/monkey)
+Иконка  
+[Monkey icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/monkey)  
+Анимация загрузки  
+[loading.io css spinner]( https://loading.io/css/ ) 
+

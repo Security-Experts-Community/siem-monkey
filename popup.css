@@ -1,48 +1,19 @@
-/* Start by setting display:none to make this hidden.
-   Then we position it in relation to the viewport window
-   with position:fixed. Width, height, top and left speak
-   for themselves. Background we set to 80% white with
-   our animation centered, and no-repeating */
-   .modal {
-    display:    none;
-    z-index:    1000;
-    padding: 15pt;
-    position: sticky;
-    height: 150px;
-    background: rgba(255, 255, 255, 0) 
-                url("loading.gif") 
-                no-repeat;
-    background-size: 160px;
-    /*background-origin: content-box;*/
-    background-position-x: 15px;
-    background-position-y: 15px;
-}
+
 body {
 width:800px;
 height: 400px;
 }
-/* When the body has the loading class, we turn
-   the scrollbar off with overflow:hidden */
-body.loading .modal {
+body.loading .lds-dual-ring {
     overflow: hidden;
 }
 
-/* Anytime the body has the loading class, our
-   modal element will be visible */
-body.loading .modal {
+
+body.loading .lds-dual-ring {
     display: block;
 }
 
 
 * { font-family:Roboto,Helvetica Neue,sans-serif; font-size:10px; }
-
-    /*ul li {
-        padding:1px;
-        background-color:rgb(255, 255, 255);
-    }
-        ul li > div { padding:1px; background-color:rgb(255, 255, 255); }
-        ul li > div + ul { margin-top:1px; }
-        ul li ul { margin-left:1px; }*/
 
 
 .parent {
@@ -106,7 +77,6 @@ div.monkeysessionslinks {
 
 div.monkeylinks {
     display: inline-block;
-    /*background: lightgray;*/
 }
 
 div.extlink {
@@ -114,13 +84,6 @@ div.extlink {
     margin-left: 10px;
     margin-top:5px;
     cursor: pointer; 
-}
-
-div.rdgsrc {
-    color:#338fcc;
-    margin-left: 10px;
-    margin-top:5px;
-    /*cursor: pointer; */
 }
 
 div.systemProcesses {
@@ -277,8 +240,6 @@ div.hashoutput {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 1;
-  /*stroke: #3182bd;
-  stroke-width: 1.5px;*/
 }
 
 .node rect.noderect {
@@ -291,4 +252,28 @@ div.hashoutput {
 
 .tabs {
   width:780px;
+}
+
+
+.lds-dual-ring {
+  display: inline-block;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid #338fcc;
+  border-color: #338fcc transparent #338fcc transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
