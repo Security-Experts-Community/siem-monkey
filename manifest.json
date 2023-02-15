@@ -29,7 +29,7 @@
 			 "libs/jquery/jquery-3.5.1.min.js",
 			 "libs/jquery-ui-1.12.1/jquery-ui.min.js",
 			 "libs/d3.js/d3.v4.min.js",
-			 "libs/moment.js/moment.min.js",
+			 "libs/moment.js/moment-with-locales.min.js",
 			 "libs/underscore.js/underscore-min.js",
 			 "update.popup.js",
 			 "processTree.popup.js",

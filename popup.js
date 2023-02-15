@@ -410,7 +410,7 @@ async function onPageDetailsReceived(details) {
     if(typeof selectedEventTime === 'undefined'){ 
         // попробуем распарсить по формату из NAD
         let session_start = details.params['session_start'];
-        let session_start_parsed = moment(session_start, "DD ММММ YYYY, hh:mm:ss");
+        let session_start_parsed = moment(session_start, "DD MMMM YYYY, hh:mm:ss", "ru");
         selectedEventTimeParsedTo = session_start_parsed.clone().add(15, 'm');
         selectedEventTimeParsedFrom = session_start_parsed.clone().subtract(15, 'm');
         $("#datepickerTo").datepicker().datepicker("setDate", selectedEventTimeParsedTo.toDate());
