@@ -99,6 +99,12 @@ let observer = new MutationObserver(async mutations => {
         .after($('<span>').addClass('mc-text-light').text(` (${desc})`));
       }
 
+      if($(mutation.target.parentNode).is('.pt-preserve-white-space', '.ng-binding ng-scope') &&
+      mutation.target.parentNode.innerText === 'process'){
+        sidebarElement = $(mutation.target.parentNode).parents("mc-sidebar-opened");
+        ProcessHandler(sidebarElement); 
+      }
+
       for(let addedNode of mutation.addedNodes) {
         // Регистрация обработчиков клика на названия определенных полей в правом сайдбаре (карточка события)
         if (addedNode instanceof Node && (addedNode.className === "mc-dl-conditional ng-scope")) {
@@ -226,7 +232,6 @@ async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", tt
 
 function ProcessHandler(addedNode) {
   $('.monkeymagicicon').remove();
-
 
   hostname_element = $("div[title=\"object\"]", addedNode);
   value_node = hostname_element.next();
