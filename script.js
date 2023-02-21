@@ -445,7 +445,7 @@ function DstIPAdd(addedNode) {
   AddExternalServiceLink(dst_ip_span, "проверить на IP-API", IPAPILink);
   AddExternalServiceLink(dst_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(dst_ip_span, "проверить на Whois7", Whois7Link);
-  
+  AddExternalServiceLink(dst_ip_span, "проверить на RSTCloud", RSTCloudLink);
 }
 
 function SrcIPAdd(addedNode) {
@@ -470,6 +470,7 @@ function SrcIPAdd(addedNode) {
   AddExternalServiceLink(src_ip_span, "проверить на IP-API", IPAPILink);
   AddExternalServiceLink(src_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(src_ip_span, "проверить на Whois7", Whois7Link);
+  AddExternalServiceLink(src_ip_span, "проверить на RSTCloud", RSTCloudLink);
 }
 
 function AddExternalServiceLink(src_ip_span, text, callback) {
@@ -507,6 +508,12 @@ function Whois7Link(ip_to_check)
 {
   return `https://whois7.ru/?q=${ip_to_check}`;
 }
+
+function RSTCloudLink(ip_to_check)
+{
+  return `https://www.rstcloud.com/ioc-lookup-results/?search=${ip_to_check}`;
+}
+
 
 
 /**
