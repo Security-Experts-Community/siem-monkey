@@ -1,5 +1,10 @@
 # SiemMonkey - плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/Security-Experts-Community/.github/blob/main/CODE_OF_CONDUCT.md)
+
+## Установка
+Описание процесса установки описано в файле [INSTALL.md](INSTALL.md)
+
 ## Репозитории проекта
 Основной:
 - GitHub: https://github.com/Security-Experts-Community/siem-monkey
