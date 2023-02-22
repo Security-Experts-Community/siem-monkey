@@ -1,40 +1,40 @@
-All files located in the libs directory are externally maintained libraries
-used by this software which have their own licenses.
+This repository incorporates materials as listed below or described in the code.
+
+All files located in the libs directory are externally maintained libraries 
+used by this software, which have their own licenses. The license files are 
+located in the corresponding folders, the paths are listed below.
 
 ---
 
 D3.js
 Copyright 2010-2018 Mike Bostock
 
-This product includes software developed for
-D3.js – (https://d3js.org/)
-Licensed under ISC license
+This product includes software developed for D3.js (https://d3js.org/)
+License: libs\d3.js\LICENSE
 
 ---
 
 jQuery
 Copyright OpenJS Foundation and other contributors, https://openjsf.org/
 
-This product includes software developed for
-jQuery – (https://jquery.com/)
-Licensed under MIT license
+This product includes software developed for jQuery (https://jquery.com/)
+License: libs\jquery\LICENCE.txt
 
 ---
 
+jQuery UI 
 Copyright jQuery Foundation and other contributors, https://jquery.org/
 
-This product includes software developed for
-jQuery UI – (https://jqueryui.com/)
-Licensed under MIT license
+This product includes software developed for jQuery UI (https://jqueryui.com/)
+License: libs\jquery-ui-1.12.1\LICENSE.txt
 
 ---
 
 jQuery UI Time Picker
 Copyright 2013 Trent Richardson
 
-This product includes software developed for
-jQuery UI Time Picker – (https://github.com/trentrichardson/jQuery-Timepicker-Addon)
-Licensed under MIT license
+This product includes software developed for jQuery UI Time Picker (https://github.com/trentrichardson/jQuery-Timepicker-Addon)
+License: libs\jquery-ui-timepicker\LICENSE_MIT
 
 
 ---
@@ -42,18 +42,16 @@ Licensed under MIT license
 Moment.js
 Copyright JS Foundation and other contributors
 
-This product includes software developed for
-Moment.js – (https://momentjs.com/)
-Licensed under MIT license
+This product includes software developed for Moment.js (https://momentjs.com/)
+License: libs\moment.js\LICENCE
 
 ---
 
 Underscore.js
 Copyright 2009-2022 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
 
-This product includes software developed for
-Underscore.js – (https://underscorejs.org/)
-Licensed under MIT license
+This product includes software developed for Underscore.js (https://underscorejs.org/)
+License: libs\underscore.js\LICENSE
 
 ---
 
