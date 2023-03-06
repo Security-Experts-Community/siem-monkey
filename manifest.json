@@ -38,7 +38,7 @@
 			"all_frames": true
         }
     ],
-	"content_security_policy": "script-src 'self' object-src 'self'",
+	"content_security_policy": "script-src 'self'; object-src 'self'",
 	"web_accessible_resources": [
 		"img/icon128.png",
 	    "siemMonkey.css",
@@ -53,6 +53,6 @@
     ],
 	"options_ui":{
 		"page": "options.html",
-		"chrome_style": true
+		"chrome_style": false
 	}
 }

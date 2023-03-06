@@ -14,21 +14,19 @@
 
 
 body {
-width:800px;
-height: 400px;
+  width:800px;
+  height: 400px;
 }
+
 body.loading .lds-dual-ring {
     overflow: hidden;
 }
-
 
 body.loading .lds-dual-ring {
     display: block;
 }
 
-
 * { font-family:Roboto,Helvetica Neue,sans-serif; font-size:10px; }
-
 
 .parent {
     color: white;

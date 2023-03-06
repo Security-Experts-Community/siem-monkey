@@ -14,9 +14,50 @@
 
     
 body {
-    width:800px;
+    width:1600px;
 }
 
 input.inputfield {
    margin-left: 10px;
+}
+
+div.iplinks_container {
+    margin-top: 15px;
+}
+
+.iplink {
+    display: flex; 
+    flex-direction: row;
+  }
+  
+.iplink input {
+    display: block; 
+  }
+
+ .iplink_name {
+    width: 32em;
+    margin: 5px;
+} 
+
+.iplink_template {
+    width: 100em;
+    margin: 5px;
+}
+
+.iplink  label {
+    text-align: left;
+    display: inline-block;
+    margin-top: 0.5em;
+    font-weight: bold;
+}
+
+span.delete_row {
+    margin-top: 0.5em;
+    cursor: pointer;
+}
+
+.buttons {
+    width: 15em;
+    margin: 0 auto;
+    display: inline;
 }

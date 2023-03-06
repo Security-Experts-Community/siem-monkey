@@ -150,6 +150,26 @@ let observer = new MutationObserver(async mutations => {
 observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
 
 
+options = {};
+
+async function GetOptionsFromStorage(){
+  options  = await getStorageData('options');
+}
+
+
+const getStorageData = key =>
+    new Promise((resolve, reject) =>
+        chrome.storage.sync.get(key, result =>
+          chrome.runtime.lastError
+            ? reject(Error(chrome.runtime.lastError.message))
+            : resolve(result)
+        )
+    )  
+
+
+GetOptionsFromStorage();
+
+
 function getTaxonomy()
 {
     let request = $.ajax
@@ -461,6 +481,10 @@ function DstIPAdd(addedNode) {
   AddExternalServiceLink(dst_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(dst_ip_span, "проверить на Whois7", Whois7Link);
   AddExternalServiceLink(dst_ip_span, "проверить на RSTCloud", RSTCloudLink);
+  options.options.iplinks.forEach(e => {
+    let link = e.template.replace('${ip}', )
+    AddExternalServiceLink(dst_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+  });
 }
 
 function SrcIPAdd(addedNode) {
@@ -486,12 +510,22 @@ function SrcIPAdd(addedNode) {
   AddExternalServiceLink(src_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(src_ip_span, "проверить на Whois7", Whois7Link);
   AddExternalServiceLink(src_ip_span, "проверить на RSTCloud", RSTCloudLink);
+  options.options.iplinks.forEach(e => {
+    let link = e.template.replace('${ip}', )
+    AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+  });
 }
 
 function AddExternalServiceLink(src_ip_span, text, callback) {
   vtdiv = $("<span>");
   vtdiv.addClass('ip-check-external-link');
   vtdiv.text(text);
+  vtdiv.hover(function(){
+    let ip_to_check = $(".pt-preserve-white-space", $(this).parent()).text().replace(/[^.0-9]+/g, "");
+    $(this).css('cursor','pointer').attr('title', callback(ip_to_check));
+    }, function() {
+    $(this).css('cursor','auto');
+  });
   vtdiv.click(function () {
     let ip_to_check = $(".pt-preserve-white-space", $(this).parent()).text().replace(/[^.0-9]+/g, "");
     window.open(callback(ip_to_check), "_blank");

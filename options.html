@@ -25,13 +25,29 @@
 <body>
 <br/>
 <label>
-  VT API Key
+  <b>VT API Key:</b>
   <input type="text" class="inputfield" id="vt-api-key" size=70">
 </label>
-
+<br/>
+<br/>
+<br/>
+<br/>
+<b>Сервисы для получения информации по IP-адресам:</b>
+<br/>
+<div class="iplinks_container" id="iplinks_container">
+  При добавлении дополнительных сервисов по проверке IP-адресов в качестве шаблона для подстановки IP-адреса следует 
+   использовать последовательность ${ip}.
+   <br/>
+   Пример: <b>https://your-favorite-ip-check-service.net/api/path/${ip}/info</b>
+</div>
+<br/>
 <div id="status"></div>
-<button id="save">Save</button>
+<div class="buttons">
+  <button id="addrow" title="Добавить сервис по проверке IP-адреса">Добавить сервис</button>
+  <button id="save" title="Сохранить настройки">Сохранить</button>
+</div>
 
+<script src="libs/jquery/jquery-3.5.1.min.js"></script>
 <script src="options.js"></script>
 </body>
 </html>
