@@ -443,7 +443,6 @@ function ProcessHandler(addedNode) {
   }
 }
 
-
 function ExternalLink(addedNode) {
   external_link_element = $("div[title=\"external_link\"]", addedNode);
   external_link_element.click(function (){
@@ -481,10 +480,12 @@ function DstIPAdd(addedNode) {
   AddExternalServiceLink(dst_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(dst_ip_span, "проверить на Whois7", Whois7Link);
   AddExternalServiceLink(dst_ip_span, "проверить на RSTCloud", RSTCloudLink);
-  options.options.iplinks.forEach(e => {
-    let link = e.template.replace('${ip}', )
-    AddExternalServiceLink(dst_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
-  });
+  if('options' in options && 'iplinks' in options.options){
+    options.options.iplinks.forEach(e => {
+      let link = e.template.replace('${ip}', )
+      AddExternalServiceLink(dst_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+    });
+  }
 }
 
 function SrcIPAdd(addedNode) {
@@ -510,10 +511,12 @@ function SrcIPAdd(addedNode) {
   AddExternalServiceLink(src_ip_span, "проверить на SPUR", SpurLink);
   AddExternalServiceLink(src_ip_span, "проверить на Whois7", Whois7Link);
   AddExternalServiceLink(src_ip_span, "проверить на RSTCloud", RSTCloudLink);
-  options.options.iplinks.forEach(e => {
-    let link = e.template.replace('${ip}', )
-    AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
-  });
+  if('options' in options && 'iplinks' in options.options){
+    options.options.iplinks.forEach(e => {
+      let link = e.template.replace('${ip}', )
+      AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+    });
+  }
 }
 
 function AddExternalServiceLink(src_ip_span, text, callback) {
