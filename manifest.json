@@ -31,6 +31,7 @@
 			 "libs/d3.js/d3.v4.min.js",
 			 "libs/moment.js/moment-with-locales.js",
 			 "libs/underscore.js/underscore-min.js",
+			 "libs/textarea-helper.js/textarea-helper.js",
 			 "update.popup.js",
 			 "processTree.popup.js",
 			 "script.js"],

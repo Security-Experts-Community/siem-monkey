@@ -101,6 +101,15 @@ let siemMonkeyInUI = setTimeout(function () {
   insertMonkeyIntoUI();
 }, 5000)
 
+function extractLast( term ) {
+  let textbox = $("events-filter-popover textarea");
+  let end = textbox[0].selectionStart;
+  let result = /\S+$/.exec(textbox[0].value.slice(0, end));
+  let lastWord = result ? result[0] : "nonexistent_field";
+  return lastWord;
+}
+
+var fields = [];
 
 let observer = new MutationObserver(async mutations => {
   for(let mutation of mutations) {
@@ -118,6 +127,67 @@ let observer = new MutationObserver(async mutations => {
       mutation.target.parentNode.innerText === 'process'){
         sidebarElement = $(mutation.target.parentNode).parents("mc-sidebar-opened");
         ProcessHandler(sidebarElement); 
+      }
+
+      if(mutation.target.parentNode && mutation.target.parentNode.nodeName === 'EVENTS-FILTER-POPOVER'){
+        // ━━━━━★. *･｡ﾟ✧⁺
+        if(fields.length == 0)
+        {
+          let msg = await getTaxonomy();
+          let fieldsinfo = msg['fields'];
+          fields = fieldsinfo.filter(x => x.filterable == true).map(y => y['name']); //не все поля подходят для фильтров 
+          fields.push('=');
+          fields.push('!=');
+          fields.push('>');
+          fields.push('<');
+          fields.push('>=');
+          fields.push('<=');
+          fields.push('in');
+          fields.push('match');
+          fields.push('startswith');
+          fields.push('endswidth');
+          fields.push('contains');
+          fields.push('and');
+          fields.push('or');
+          fields.push('not');
+          fields.push('in_subnet');
+        }
+
+        ta = $("textarea", mutation.target.parentNode);
+        ta.on("keydown", function(event) {
+          if (event.keyCode === $.ui.keyCode.TAB && $(this).autocomplete("instance").menu.active) {
+            event.preventDefault();
+          }
+        })
+        .autocomplete({
+          appendTo: ta.parent(),
+          position: {my : "left top", at: `right top`},
+          minLength: 1,
+          source: function(request, response) {
+            response($.ui.autocomplete.filter(fields, extractLast(request.term )));
+          },
+          focus: function() {
+            return false;
+          },
+          open: function() {
+            ta.textareaHelper();
+            let XY = ta.textareaHelper("caretPos");
+            let x = XY.left + 5;
+            let y = XY.top + 20;
+            $('.ui-autocomplete').css('width', '230px'); // 230px хватит всем
+            $('.ui-autocomplete').position({my: "left top", at: `left+${x} top+${y}`, of: ta});
+          },
+          select: function(event, ui) {
+            let textbox = $(this);
+            let end = textbox[0].selectionStart;
+            let start = this.value.lastIndexOf(" ", end);
+            let newvalue = this.value.substring(0, start) + " " //старое начало
+            + ui.item.value + " "                              //новая середина
+            + this.value.substring(end, this.value.length);    //старый конец
+            this.value = newvalue;
+            return false;
+          }
+        });
       }
 
       for(let addedNode of mutation.addedNodes) {
@@ -172,28 +242,29 @@ GetOptionsFromStorage();
 
 function getTaxonomy()
 {
-    let request = $.ajax
-    (
-        {
-            type: "GET",
-            url: `${siemUrl}/api/events/v2/events_metadata`,
-        }
-    );
-    return request;
+  let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  let request = $.ajax
+  (
+      {
+          type: "GET",
+          url: `${siemUrl}/api/events/v2/events_metadata`,
+      }
+  );
+  return request;
 }
 
 
 function getCorrelationRuleInfoByName(correlation_name)
 {
-    let siemUrl = window.location.href.split('#',1).slice(0, -1);  
-    var request = $.ajax
-    (
-        {
-            type: "GET",
-            url: `${siemUrl}/api/siem/v2/rules/correlation/${correlation_name}`,
-        }
-    );
-    return request;
+  let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  var request = $.ajax
+  (
+      {
+          type: "GET",
+          url: `${siemUrl}/api/siem/v2/rules/correlation/${correlation_name}`,
+      }
+  );
+  return request;
 }
 
 
