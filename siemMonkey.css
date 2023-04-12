@@ -128,6 +128,25 @@ span.monkeymagicicon {
   margin-left: 10px;
 }
 
+span.copynormalizedicon { 
+  color: #3182bd;
+  margin-left: 15px;
+  cursor: pointer; 
+}
+
+span.downloadnormalizedicon { 
+  color: #3182bd;
+  margin-left: 5px;
+  cursor: pointer; 
+}
+
+span.downloadsubeventsnormalizedicon { 
+  color: #3182bd;
+  margin-left: 5px;
+  cursor: pointer; 
+}
+
+
 div.openMsgs
 {
   cursor: pointer;

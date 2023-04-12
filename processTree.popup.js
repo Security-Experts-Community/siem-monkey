@@ -353,3 +353,97 @@ function processHashByNameSearch(events)
 }
 
 
+/**
+ * Сохранить JSON события в буфер обмена
+ * @param {Array} events массив событий 
+ * @param {str} outputelemsuffix 
+ */
+function processEventCopyToClipboard(events, outputelemsuffix="")
+{
+   let event = events[0];
+   let event_filtered = $.each(event, function(key, value) {
+    if(value === null) {
+        delete event[key];
+    }
+   });
+   navigator.clipboard.writeText(JSON.stringify(event_filtered));
+   let icon = $(".copynormalizedicon");
+   $('<div>Скопировано...</div>').insertAfter(icon).show().delay(1000).fadeOut();
+}
+
+
+/**
+ * Сохранить список событий в локальный файл
+ * @param {Array} events массив событий 
+ * @param {str} outputelemsuffix uuid корреляционного события, для которого найдены исходные события 
+ */
+function processCorrleationEventDownload(events, outputelemsuffix="")
+{
+
+   let events_filtered = events.map(e => (
+    $.each(e, function(key, value) {
+        if(value === null) {
+            delete e[key];
+        }
+       })
+   ))
+
+   let filename = '';
+   let data = '';
+   if(events_filtered.length === 1){
+    data = JSON.stringify(events_filtered[0]);
+    if(outputelemsuffix === ""){
+      filename = `${events_filtered[0]['uuid']}.txt`;
+    }
+    else{
+      filename = `${outputelemsuffix}_subevents.txt`;
+    }
+   }
+   else {
+    data = JSON.stringify(events_filtered);
+    filename = `${outputelemsuffix}_subevents.txt`;
+   }
+   saveFile(filename, "data:attachment/text", data);
+}
+
+
+/**
+ * Получить все исходные события и сохранить их в файл
+ * @param {Array} events массив событий, для первого из них производится получение исходных и сохранение в файл
+ * @param {str} outputelemsuffix 
+ */
+function processCorrleationEventDownloadSubevents(events, outputelemsuffix="")
+{
+    let event = events[0];
+    let time = event['time'];
+    //"2023-02-04T19:07:05.0000000Z"
+    let timeParsed = moment.utc(time.slice(0,-9), "YYYY-MM-DDThh:mm:ss");
+    let timeto = timeParsed.toDate();
+    let ttimeto = timeto.getTime()/1000; 
+    gtfrom = ttimeto; 
+    gtto = ttimeto;
+
+    let uuids = event['subevents'];
+    let uuids_str = "'" + uuids.join("','") + "'";
+    getdata(siemUrl, `uuid in [${uuids_str}]`, uuids.length, processCorrleationEventDownload, event['uuid'], ttimeto-86400, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+}
+
+/**
+ * Сохранить данные в файл
+ * @param {str} name имя файла
+ * @param {str} type тип данных
+ * @param {str} data данные
+ * @returns 
+ */
+function saveFile (name, type, data) {
+    if (data !== null && navigator.msSaveBlob)
+        return navigator.msSaveBlob(new Blob([data], { type: type }), name);
+    let a = $("<a style='display: none;'/>");
+    let url = window.URL.createObjectURL(new Blob([data], {type: type}));
+    a.attr("href", url);
+    a.attr("download", name);
+    $("body").append(a);
+    a[0].click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+}

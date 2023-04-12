@@ -193,6 +193,16 @@ let observer = new MutationObserver(async mutations => {
       for(let addedNode of mutation.addedNodes) {
         // Регистрация обработчиков клика на названия определенных полей в правом сайдбаре (карточка события)
         if (addedNode instanceof Node && (addedNode.className === "mc-dl-conditional ng-scope")) {
+              if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "uuid") {
+                if('options' in options &&
+                 'dont_show_save_event_icons' in options.options && 
+                 options.options.dont_show_save_event_icons == true) {
+                  ; //если задана опция "Не показывать кнопки сохранения JSON события", то и не показываем
+                }
+                else {
+                  await uuidChange(addedNode);
+                }
+              } 
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML.endsWith(".hash")) {
                 CommonFieldClick(addedNode, addedNode.children[0].innerHTML, GetVirusTotalLinkForHash);
               }             
@@ -296,6 +306,7 @@ async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", tt
     
             let prefields = msg['fields'];
             fields = prefields.filter(x => x.filterable == true).map(y => y['name']);
+            fields.push('subevents');
             fields.push('time');
 
             let params = {"filter":
@@ -719,4 +730,153 @@ function GetTaskLink(task_id) {
       }
   );
   return request;
+}
+
+function AddElementIfNotExist(value_node_span, descendants_tree_icon, classname)
+{
+  if($(classname).length === 0) {
+    value_node_span.after(descendants_tree_icon);
+  }
+  else {
+    console.log($(classname))
+  }
+}
+
+/**
+ * Добавить обработчик появления и изменения значения элемента uuid в правой панели
+ * @param {*} addedNode добавляемый элемент на страницу
+ */
+async function uuidChange(addedNode){
+  // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
+  setTimeout(function(addedNode){
+    // uuid меняется при клике на каждое новое событие, т.к. он уникален
+    // это можно использоать для добавления/удаления элементов при необходимости
+    let value_node_span = $("pdql-fast-filter", addedNode);
+  
+    // нарисовать иконки при изменении значения поля uuid
+    value_node_span.on('DOMSubtreeModified', async function(){
+    // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
+      setTimeout(function(changedElement){
+        let sidebar = changedElement.closest('mc-sidebar');
+        // нужно убрать старую иконку загрузки сабивентов
+        $('.downloadsubeventsnormalizedicon').remove();
+        // и нарисовать новую, если есть поле correlation_name
+        let correlation_name = $("div[title=\"correlation_name\"]", sidebar)
+        if(correlation_name.length > 0) {
+          AddDownloadNormalizedSubeventsIcon($('.downloadnormalizedicon'));
+        }
+      },
+      500,
+      $(this))
+    });
+
+    // нарисовать иконки загрузки событий при появлении uuid первый раз на странице
+    let sidebar = $(addedNode).closest('mc-sidebar');
+    let event_icon_type = $('event-icon-type', sidebar);
+    let correlation_name = $("div[title=\"correlation_name\"]", sidebar);
+    if(correlation_name.length > 0) {
+      AddDownloadNormalizedSubeventsIcon(event_icon_type.next());
+    }
+    AddDownloadNormalizedIcon(event_icon_type.next());
+  },
+  500,
+  addedNode);
+}
+
+/**
+ * Добавить иконку сохранения в файл исходных событий для корреляционного события
+ * @param {*} addedNode добавляемый элемент (этот элемент будет левым братом для иконки)
+ */
+function AddDownloadNormalizedSubeventsIcon(addedNode) {
+  value_node_span = $(addedNode);
+
+  download_all_subevents_icon = $(`<span title="Сохранить JSON всех исходных событий в файл">🖫</span>`);
+  download_all_subevents_icon.addClass("downloadsubeventsnormalizedicon");
+  setTimeout(AddElementIfNotExist, 200, value_node_span, download_all_subevents_icon, ".downloadsubeventsnormalizedicon"); 
+  download_all_subevents_icon.click(function(){
+    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    var iframe = $('#legacyApplicationFrame'); 
+    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
+    if(uuid == "")
+    {
+      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
+    }
+    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+    if(time.length === 0 ) { 
+      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+      if (time.length === 0) {
+        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
+      }
+    }
+    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeto = timeParsed.toDate();
+    ttimeto = timeto.getTime()/1000; 
+    gtfrom = ttimeto; 
+    gtto = ttimeto;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownloadSubevents, "", ttimeto, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+  })
+}
+
+/**
+ * Добавить иконки сохранения в буфер обмена и сохранения в файл текущего события 
+ * @param {*} addedNode добавляемый элемент (этот элемент будет левым братом для иконок)
+ */
+function AddDownloadNormalizedIcon(addedNode) {
+  value_node_span = $(addedNode);
+
+  copy_normalized_icon = $(`<span title="Скопировать JSON события в буфер обмена">📋</span>`);//
+  copy_normalized_icon.addClass("copynormalizedicon");
+  setTimeout(AddElementIfNotExist, 500, value_node_span, copy_normalized_icon, ".copynormalizedicon"); 
+
+  download_normalized_icon = $(`<span title="Сохранить JSON события в файл">💾</span>`);//
+  download_normalized_icon.addClass("downloadnormalizedicon");
+  setTimeout(AddElementIfNotExist, 300, value_node_span, download_normalized_icon, ".downloadnormalizedicon"); 
+ 
+  download_normalized_icon.click(function ()
+  {
+    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    var iframe = $('#legacyApplicationFrame'); 
+    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
+    if(uuid == "")
+    {
+      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
+    }
+    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+    if(time.length === 0 ) { 
+      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+      if (time.length === 0) {
+        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
+      }
+    }
+    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeto = timeParsed.toDate();
+    ttimeto = timeto.getTime()/1000; 
+    gtfrom = ttimeto; 
+    gtto = ttimeto;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownload, "", ttimeto, ttimeto);
+  })
+
+  copy_normalized_icon.click(function ()
+  {
+    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    var iframe = $('#legacyApplicationFrame'); 
+    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
+    if(uuid == "")
+    {
+      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
+    }
+  time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+    if(time.length === 0 ) { 
+      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+      if (time.length === 0) {
+        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
+      }
+    }
+  timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeto = timeParsed.toDate();
+    ttimeto = timeto.getTime()/1000; 
+    gtfrom = ttimeto; 
+    gtto = ttimeto;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processEventCopyToClipboard, "", ttimeto, ttimeto);
+  })
 }
