@@ -186,6 +186,7 @@ async function processTreeBranch(pre_events, outputelemsuffix="")
             function() {
                 let uuids = treeBranchEvents.map(x => `"${x['uuid']}"`);
                 let uuidsstr = uuids.join(", ");
+                let siemUrl = window.location.origin;
                 try {
                     chrome.tabs.create({url: `${siemUrl}/#/events/view?where=uuid in [${uuidsstr}]`});
                 }
@@ -207,6 +208,7 @@ async function processTreeBranch(pre_events, outputelemsuffix="")
         let processStartMsgid = pre_events[0]['msgid'];
         let parentProcessPid = pre_events[0]['object.process.parent.id'];
         let parentProcessName = pre_events[0]['object.process.parent.name'];
+        let siemUrl = window.location.origin;
         getdata(siemUrl,
             `event_src.host = "${event_src_host}"` + 
             ` and msgid = "${processStartMsgid}"` + 
@@ -306,6 +308,7 @@ async function processTreeBranchReverse(pre_events, outputelemsuffix="")
 
             e = $("<div>", {"class":"openMsgs oneline"}).text(`Открыть в новом окне события запуска этих процессов`).click(
                 function()    {
+                    let siemUrl = window.location.origin;
                     let uuids = treeBranchEvents.map(x => `"${x['uuid']}"`);
                     let uuidsstr = uuids.join(", ");
                     try {
@@ -337,7 +340,7 @@ async function processTreeBranchReverse(pre_events, outputelemsuffix="")
 
             //в качестве outputelemsuffix передаю guid, чтобы в обработчике понять, дла какого процесса получен ответ
             let filter = `object.process.parent.guid = "${processGuid}"`;
-
+            let siemUrl = window.location.origin;
             getdata(siemUrl, filter, count, processTreeBranchReverse, processGuid);
         })
     }
@@ -425,6 +428,7 @@ function processCorrleationEventDownloadSubevents(events, outputelemsuffix="")
 
     let uuids = event['subevents'];
     let uuids_str = "'" + uuids.join("','") + "'";
+    let siemUrl = window.location.origin;
     getdata(siemUrl, `uuid in [${uuids_str}]`, uuids.length, processCorrleationEventDownload, event['uuid'], ttimeto-86400, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
 }
 

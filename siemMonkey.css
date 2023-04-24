@@ -146,6 +146,11 @@ span.downloadsubeventsnormalizedicon {
   cursor: pointer; 
 }
 
+i.shareableeventlink {
+  color: #3182bd;
+  margin-right: 10px;
+  cursor: pointer; 
+}
 
 div.openMsgs
 {

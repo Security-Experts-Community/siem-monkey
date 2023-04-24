@@ -337,12 +337,12 @@ function switchProcessStartMsgid()
 
 
 let commandline = "";
-let processStartMsgid = "";
+var processStartMsgid = "";
 
 
 // разбор полученных данных и вывод на popup плагина
 async function onPageDetailsReceived(details) {
-    siemUrl = details['url'].split('#',1)[0].slice(0, -1);
+    siemUrl = details['url'];
 
     // полезные фильтры aka параметризованные фильтры
     // TODO: удваивать все обратные слеши в значениях
@@ -625,21 +625,22 @@ async function onPageDetailsReceived(details) {
     .append($('<span>', {class:'parameter'}).text(`${details.params[commandlineField].trim("↵")}`))
 }
 
-let siemUrl = "";
 let count = "5";
-let event_src_host = "";
+var event_src_host = "";
 $( function() {
     $( "#tabs" ).tabs();
 });
-  
 
-// Когда будет загружен HTML всплывающего окна (попапа) плагина
-window.addEventListener('load', function(evt) {
-    // Получаем BackgoundPage
-    chrome.runtime.getBackgroundPage(function(eventPage) {
-        // Вызываем функцию getPageDetails, в качестве callback указываем onPageDetailsReceived
-        // При это произойдет загрузка content.js в контексте текущей страницы, а это нам и нужно для разбора
-        // значений полей события из правой панели
-        eventPage.getPageDetails(onPageDetailsReceived);
-    });
+window.addEventListener('load', async function(event){
+    const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+    const response = await chrome.tabs.sendMessage(tab.id,  { siemMonkeyMessage: "getEventDetaisFromSidebar" });
 });
+
+// Регистрируем обработчик сообщений от context.js
+chrome.runtime.onMessage.addListener(
+    function doStuff(message){
+        // console.log(message);
+        onPageDetailsReceived(message); 
+}); 
+
+
