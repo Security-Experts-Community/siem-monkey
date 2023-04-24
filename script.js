@@ -197,6 +197,7 @@ let observer = new MutationObserver(async mutations => {
                 else {
                   await uuidChange(addedNode);
                 }
+                await shareableLinkIconAdd(addedNode);
               } 
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML.endsWith(".hash")) {
                 CommonFieldClick(addedNode, addedNode.children[0].innerHTML, GetVirusTotalLinkForHash);
@@ -772,6 +773,22 @@ async function uuidChange(addedNode){
 }
 
 /**
+ * Добавить обработчик появления значения элемента uuid в правой панели для размещения дополнительных иконок
+ * @param {*} addedNode добавляемый элемент на страницу
+ */
+async function shareableLinkIconAdd(addedNode){
+  // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
+  setTimeout(function(addedNode){
+    let sidebar = $(addedNode).closest('mc-sidebar');
+    let event_icon_type = $('event-icon-type', sidebar);
+    AddGetShareableEventLinkIcon(event_icon_type);
+  },
+  500,
+  addedNode);
+}
+
+
+/**
  * Добавить иконку сохранения в файл исходных событий для корреляционного события
  * @param {*} addedNode добавляемый элемент (этот элемент будет левым братом для иконки)
  */
@@ -870,6 +887,45 @@ function AddDownloadNormalizedIcon(addedNode) {
   })
 }
 
+
+/**
+ * Добавить иконку сохранения ссылки на текущее событие в буфер обмена
+ * @param {*} addedNode добавляемый элемент (этот элемент будет левым братом для иконки)
+ */
+function AddGetShareableEventLinkIcon(addedNode) {
+  value_node_span = $(addedNode);
+
+  link_icon = $(`<i class="pt-icons pt-icons-link_16" title="Ссылка на это событие"></i>`);
+  link_icon.addClass("shareableeventlink");
+  setTimeout(AddElementIfNotExist, 200, value_node_span, link_icon, ".shareableeventlink"); 
+  link_icon.click(function(){
+    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    if(siemUrl == ""){
+      siemUrl = origin;
+    }
+    var iframe = $('#legacyApplicationFrame'); 
+    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
+    if(uuid == "")
+    {
+      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
+    }
+    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+    if(time.length === 0 ) { 
+      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+      if (time.length === 0) {
+        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
+      }
+    }
+    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeto = timeParsed.toDate();
+    ttimeto = timeto.getTime(); 
+    let link = `${siemUrl}/#/events/view?where=uuid=%22${uuid}%22&period=range&start=${ttimeto}&end=${ttimeto}`;
+    console.log(link);
+    navigator.clipboard.writeText(link);
+    let icon = $(".shareableeventlink");
+    $('<div>Ссылка в буфере обмена...</div>').insertAfter(icon).show().delay(500).fadeOut();
+  })
+}
 
 async function popup_event_handler() {
   let iframe = $('#legacyApplicationFrame'); 
