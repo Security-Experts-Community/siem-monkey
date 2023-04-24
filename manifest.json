@@ -1,23 +1,20 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "SiemMonkey",
 	"description": "SiemMonkey for MaxPatrol SIEM",
-	"version": "1.0",
+	"version": "2.0",
 	"icons": { 
 		"16": "img/icon16.png",
 		"48": "img/icon48.png",
 		"128": "img/icon128.png" 
 	},
-	"background": {
-        "scripts": ["libs/jquery/jquery-3.5.1.min.js", "event.js"],
-		"persistent": false
 
-	},
-	"browser_action": {
+	"action": {
 		"default_icon": {                    
 			"19": "img/icon48.png",          
 			"38": "img/icon48.png"          
 		},
+		"default_title": "SiemMonkey 2.0",
 		"default_popup": "popup.html"
 	},
 	"content_scripts": 
@@ -39,21 +36,32 @@
 			"all_frames": true
         }
     ],
-	"content_security_policy": "script-src 'self'; object-src 'self'",
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self'"
+	},
+	
 	"web_accessible_resources": [
-		"img/icon128.png",
-	    "siemMonkey.css",
-		"customfilters.json"
+		{
+			"resources": [
+			"img/icon128.png",
+	    	"siemMonkey.css",
+			"customfilters.json"
+			],
+			"matches": [
+				"*://*/*"
+			]
+		}
     ],
 	"permissions": [
         "tabs", 
-        "http://*/*", 
-		"https://*/*",
 		"storage",
 		"contextMenus"
     ],
+	"host_permissions": [
+        "http://*/*", 
+		"https://*/*"
+	],
 	"options_ui":{
-		"page": "options.html",
-		"chrome_style": false
+		"page": "options.html"
 	}
 }

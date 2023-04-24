@@ -13,10 +13,6 @@
 //    limitations under the License.
 
 
-var gtfrom = 0;
-var gtto = 0;
-let icondataurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA1nAAANZwG8Jya1AAAAB3RJTUUH5wEdDiU4kuliGwAABGBJREFUSMeNlV1sU2UYx3/v+Wg7t9LRtZRNZARGhM0hH3KB6ASFRASJiTFkRhMSLvRGjCYaEy8kJt7oBYkXRDAxITEsokFEoxdC7LZA5oRByBhjK8SxZXRfrK1td9qevq8X55R2DD+ek5z34n3+/+fzfR7BPGl3T0HOq2qUiQCUKIi0N6fcu455CHE/XCHN4nptp/cJX4PhcwhsyxrPXZS/6le0griPQsyHF1Et+jsNe1vCqwnhdfDkmGaYa1PjZ4qHxTV9HoWohCepfrH207Y1z7F0vmuAIs45ugYT72d+DFRQiPYKleKeyNF9DU+i8WCRXOCb8Yk39J/K9HorUBTFFcVNYmvg41dXPr3AdmW8y/H7b2ywknZYKpKa44EMcTDQXtsw6dluvPaP1stefM1v9pJ8YjzZwefatN4S1A+vfeuFYKM5o+0jwH+JIMR1bbu5Ljj3zN162am3HFx1cK8epp9FbPsX98vi5yZpWmkk3jyT1Hz7N5p+bCZp+l9wEDQxiY2fjaZvv1HVFAZsLMKuQpw/mCDABla5fRCjjxQRNlMPQBgLG4MwVU2GsqUBEokHgEFOUEWEMfrYRRvQxfdUUc0APbzOWsCDRAISZRuZy6Nb6lFuT2U4TSNbMJEM8gtB4AceYQ9JrjDCKd6mxvULRslc1gpHLqXu3CveKCk2kKeHGR5lCcf5Eo3n8XELjYeZZMzV1LjDpVThiKGfjK8488Fj1XkAchiYpBkgSIht5LjIGBNcJY1ABywA8vTRn4l/pp/UW4uiJ3l9xG8v22rWofidMEtZTRgND9UUue4GqJEiw0783OXc3NDZxEfaV+QNIK9/N3e+6me1HpayiU62sQybYaaQ5LCI0YiHDGO0Ue/Ef2PugPcOgOa8KmVhOzXexSJ6sblAJ3FmydIEXOUGQyxnd6lXbGUBdKA5D1NIVZQATJHgcVIM8RSCNawBniXADnaTYMp9D6oopIMspT9fSGUARZQwKzFYT4gp0qSZIsRmGmgmRBQFZCikcLKO4RwJy3MrDiS4yVY0/GxC8TLVwHJqCQKCZs6TYDFx8rcSVsQtJwARVegdlpJpioRQbs8H8eAh6MatCFFkGsmwLPRGFJUEQHds5DZZDExK81dV/EFhYpDlNrERukswzckliNjMqSgKhXTtaxWfKCUPRZSZUyJWmopGiclU9rGeXTXNkiw+Ckw4daWUqggmWSQxegbkMVOVb8rvfGj2UPRocfEodczRS/refFDUsAMPo0wTnZ09JIYqp4Mr7YDQ5Jt8sqL2FR4i74ZSitRDlm/5M8GH2hdKlse6XlLppxWUuCRGUutkXSNedIx7n0mBTgaGeU8cR1YuFr1sxaFQ/bJ7ojnTGKYKzU0mJIjS12Uf4KxQ81dbBYFDISBud8YXjTRlvBKbLBNcpfOvoROFd7XB+zcjC+eos6mkT7YZL/k2eusgN2P12ae1Ls1iAZwHDeLSsrM0bbEKgEjKWZ+b0Y4F2n8DLrW7Px/mhBwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDEtMjlUMTQ6Mzc6NTErMDA6MDAjXia7AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAxLTI5VDE0OjM3OjUxKzAwOjAwUgOeBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAAASUVORK5CYII=";
-let icon16dateurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABlVBMVEUAAABUWW6ChZRbYHRRV25cYHOYinJhYm1RVmtSV21VWm+rrbhTWG1iZnlcYXU0OlJWW3BnZ3AlK0ZZXnJxdYd4fY1PVGqHipm9v8fb3OBBS21PVGmPk6BiY2+ajHGRiX3U1duViHKumnOQhXJeYW+BeW6trbCAeW41Pl2rrbg1O1Opq7YQFzSWmaZ1eYqxtL1QVWp3e45LUmxwbXBJUW2De3HDqnQvP2xfYW93c3Di4+bi4+f////mw3W2rJv29/r3+Pr6+/z7+/v4+PjtyHW5s6z8/P7PztCzqpu2sKnn6Ovm5+ucqsCMoL3Gy9X8/P3Wt3S8t6/m5+y1pojdvHPVt3SropWKlqqRuORrrfVskb/n5+u7qYPcu3XtyXfmwnSLj41oqfJVpv9mkcT6+vuysK7TtXXEqnSum3ORiHVgfJ9fg6+fqbz6+vq2sKi5o3SynXS0nnO0nnLIrHK2sKfa3OG8qoX+1Hf50Xjxy3f60nj+1XfFr4H/1nf+1HinmHz0zXfCqXW5onTTtnbwy3fuyXfiwXbk7/kLAAAAOnRSTlMAAAAAAAAAAAAAAAAAAAAAAAAKQXaGIJzr/BU7tUXC7/7T/Mc1sfixIdgVzwmyaPwVtyq6GpbvC02GFDa/iQAAAAFiS0dEPKdqYc8AAAAJcEhZcwAADWcAAA1nAbwnJrUAAAAHdElNRQfnAR0OIht/z4WuAAABCUlEQVQY02NgYGRiFhIWERUVERZiZmJkYGBhZBUTl5C0spKUEBdjZWRhYJOSlrG2AQNrGWkpNgZZOXkFGyhQkJeTZVC0tbO3cXC0sXFytrG3s1VkUHJxdXP38PTy9vH183d1UWJQDggMCg4JDQuPiIyKDgxQZlBRVbOOiY2LT0hMSrZSU1dhYNfQTElNS8/IzMrOydXUYGfg0NJ2yAvNLygsKi5x0NbiYODU0S0tK6+orKyqLivV1eFk4OLW06+prQOC2hp9PW4uBkYeA8P6hsampsaGekMDHqBnePmMjJtbWltbmo2N+HgZGBgY+QVMTM3a2sxMTQT4gQqAIoKM5haWlhbmQAYDAwC+0TkTtbceAAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMy0wMS0yOVQxNDozMjozMiswMDowMDLw/uUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjMtMDEtMjlUMTQ6MzI6MzIrMDA6MDBDrUZZAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAABJRU5ErkJggg=="
 function insertMonkeyIntoUI() {
   let siem_title_elem = $("body > pt-siem-app-root > pt-siem-header > header > mc-navbar > mc-navbar-container:nth-child(1) > pt-siem-navbar-brand > a > mc-navbar-title");
   let siem_title = siem_title_elem.text();
@@ -109,7 +105,6 @@ function extractLast( term ) {
   return lastWord;
 }
 
-var fields = [];
 
 let observer = new MutationObserver(async mutations => {
   for(let mutation of mutations) {
@@ -227,11 +222,6 @@ let observer = new MutationObserver(async mutations => {
 });
 
 
-observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
-
-
-options = {};
-
 async function GetOptionsFromStorage(){
   options  = await getStorageData('options');
 }
@@ -247,12 +237,10 @@ const getStorageData = key =>
     )  
 
 
-GetOptionsFromStorage();
-
-
 function getTaxonomy()
 {
-  let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  //let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  let siemUrl = window.location.origin;
   let request = $.ajax
   (
       {
@@ -266,7 +254,8 @@ function getTaxonomy()
 
 function getCorrelationRuleInfoByName(correlation_name)
 {
-  let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  //let siemUrl = window.location.href.split('#',1).slice(0, -1);  
+  let siemUrl = window.location.origin;
   var request = $.ajax
   (
       {
@@ -277,11 +266,6 @@ function getCorrelationRuleInfoByName(correlation_name)
   return request;
 }
 
-
-var commandline = '';
-var treeBranchEvents = [];
-//идентификаторы событий, для которых ожидаем получение процессов потомков
-var events_for_children_waiting = [];
 
 async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", ttfrom="", ttto="")
 {
@@ -387,7 +371,8 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");
-      siemUrl = window.location.href.split('#',1).slice(0, -1);
+      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+      let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
 
       commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first", iframe.contents()).text().trim('↵');
@@ -441,7 +426,8 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");;
-      siemUrl = window.location.href.split('#',1).slice(0, -1);
+      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+      let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
       if(iframe.length == 0)
       {
@@ -495,7 +481,8 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");
-      siemUrl = window.location.href.split('#',1).slice(0, -1);
+      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+      let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
 
       uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
@@ -649,7 +636,6 @@ function RSTCloudLink(ip_to_check)
 }
 
 
-
 /**
  * Обобщенный обработчик для добавления обработчика события onclick для названия поля события.
  * По клику извлекает значение поля и передаёт его текст в качестве параметра при вызове callback-функции.
@@ -712,7 +698,8 @@ function RSTCloudLink(ip_to_check)
  * @returns ссылка на задачу SIEM
  */
 function GetTaskLink(task_id) {
-  siemUrl = window.location.href.split('#',1).slice(0, -1);
+  //siemUrl = window.location.href.split('#',1).slice(0, -1);
+  let siemUrl = window.location.origin;
   return `${siemUrl}/#/scanning/tasks/scan/history/${task_id}`;
 };
 
@@ -721,7 +708,8 @@ function GetTaskLink(task_id) {
  * @returns информация о зарегистрированных приложениях
  */
  async function getRegisterdApps() {
-  siemUrl = window.location.href.split('#',1).slice(0, -1);
+  //siemUrl = window.location.href.split('#',1).slice(0, -1);
+  let siemUrl = window.location.origin;
   let request = await $.ajax
   (
       {
@@ -794,7 +782,8 @@ function AddDownloadNormalizedSubeventsIcon(addedNode) {
   download_all_subevents_icon.addClass("downloadsubeventsnormalizedicon");
   setTimeout(AddElementIfNotExist, 200, value_node_span, download_all_subevents_icon, ".downloadsubeventsnormalizedicon"); 
   download_all_subevents_icon.click(function(){
-    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    //siemUrl = window.location.href.split('#',1).slice(0, -1);
+    let siemUrl = window.location.origin;
     var iframe = $('#legacyApplicationFrame'); 
     let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
     if(uuid == "")
@@ -834,7 +823,7 @@ function AddDownloadNormalizedIcon(addedNode) {
  
   download_normalized_icon.click(function ()
   {
-    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    let siemUrl = window.location.origin;
     var iframe = $('#legacyApplicationFrame'); 
     let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
     if(uuid == "")
@@ -858,7 +847,7 @@ function AddDownloadNormalizedIcon(addedNode) {
 
   copy_normalized_icon.click(function ()
   {
-    siemUrl = window.location.href.split('#',1).slice(0, -1);
+    let siemUrl = window.location.origin;
     var iframe = $('#legacyApplicationFrame'); 
     let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
     if(uuid == "")
@@ -880,3 +869,71 @@ function AddDownloadNormalizedIcon(addedNode) {
     getdata(siemUrl, `uuid = '${uuid}'`, 1, processEventCopyToClipboard, "", ttimeto, ttimeto);
   })
 }
+
+
+async function popup_event_handler() {
+  let iframe = $('#legacyApplicationFrame'); 
+  let params = {};
+
+  try {
+      // получаем от SIEM список поддерживаемых полей и для каждого поля парсим из правого сайдбара значение
+      let msg = await getTaxonomy();
+      let fields = msg['fields'];
+      fields.forEach( x => {
+          params[x.name] = $(`div[title=\"${x.name}\"] + div > div > div:first`, iframe.contents()).text().trim('↵');
+      });
+      
+      let selector = "body .mc-sidebar_right > mc-sidebar-opened > header > div.layout-row.flex > div > div";
+      params['time'] = $(selector).text().trim('↵');
+      if(params['time'].length === 0 ) { 
+          params['time'] = $(selector, iframe.contents()).text().trim('↵');
+      }
+  }
+  catch(err)
+  {
+      // если не вышло, то считаем, что мы в NAD, поэтому пробуем получить адреса и порты с карточки сессии/атаки
+      // TODO: решить, как быть с NAD - надо как-то определять, что мы точно в NADе
+      params['nad_src_ip'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].ip"]', iframe.contents())
+      .first().text();
+      params['nad_dst_ip'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].ip"]', iframe.contents())
+      .first().text();
+      params['nad_src_port'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].port"]', iframe.contents())
+      .eq(1).text();
+      params['nad_dst_port'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].port"]', iframe.contents())
+      .eq(1).text();
+      params['session_start'] = $('div[row-title="Начало"]', iframe.contents()).attr('row-value');
+  }
+  chrome.runtime.sendMessage({
+      'title': document.title,
+      'url': window.location.origin,
+      'params': params
+  });
+}
+
+// Подписываемся на оповещения только в основном окне, а в iframe не будем
+if(window.location.pathname != '/ng1/') {
+  //console.log(window.location);
+  chrome.runtime.onMessage.addListener(
+     async function (request, sender, reply){
+      console.log(request.siemMonkeyMessage);
+      if(request.siemMonkeyMessage == "getEventDetaisFromSidebar"){
+        await popup_event_handler();
+      }
+      return true;
+    });
+} 
+
+
+var gtfrom = 0;
+var gtto = 0;
+let icondataurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA1nAAANZwG8Jya1AAAAB3RJTUUH5wEdDiU4kuliGwAABGBJREFUSMeNlV1sU2UYx3/v+Wg7t9LRtZRNZARGhM0hH3KB6ASFRASJiTFkRhMSLvRGjCYaEy8kJt7oBYkXRDAxITEsokFEoxdC7LZA5oRByBhjK8SxZXRfrK1td9qevq8X55R2DD+ek5z34n3+/+fzfR7BPGl3T0HOq2qUiQCUKIi0N6fcu455CHE/XCHN4nptp/cJX4PhcwhsyxrPXZS/6le0griPQsyHF1Et+jsNe1vCqwnhdfDkmGaYa1PjZ4qHxTV9HoWohCepfrH207Y1z7F0vmuAIs45ugYT72d+DFRQiPYKleKeyNF9DU+i8WCRXOCb8Yk39J/K9HorUBTFFcVNYmvg41dXPr3AdmW8y/H7b2ywknZYKpKa44EMcTDQXtsw6dluvPaP1stefM1v9pJ8YjzZwefatN4S1A+vfeuFYKM5o+0jwH+JIMR1bbu5Ljj3zN162am3HFx1cK8epp9FbPsX98vi5yZpWmkk3jyT1Hz7N5p+bCZp+l9wEDQxiY2fjaZvv1HVFAZsLMKuQpw/mCDABla5fRCjjxQRNlMPQBgLG4MwVU2GsqUBEokHgEFOUEWEMfrYRRvQxfdUUc0APbzOWsCDRAISZRuZy6Nb6lFuT2U4TSNbMJEM8gtB4AceYQ9JrjDCKd6mxvULRslc1gpHLqXu3CveKCk2kKeHGR5lCcf5Eo3n8XELjYeZZMzV1LjDpVThiKGfjK8488Fj1XkAchiYpBkgSIht5LjIGBNcJY1ABywA8vTRn4l/pp/UW4uiJ3l9xG8v22rWofidMEtZTRgND9UUue4GqJEiw0783OXc3NDZxEfaV+QNIK9/N3e+6me1HpayiU62sQybYaaQ5LCI0YiHDGO0Ue/Ef2PugPcOgOa8KmVhOzXexSJ6sblAJ3FmydIEXOUGQyxnd6lXbGUBdKA5D1NIVZQATJHgcVIM8RSCNawBniXADnaTYMp9D6oopIMspT9fSGUARZQwKzFYT4gp0qSZIsRmGmgmRBQFZCikcLKO4RwJy3MrDiS4yVY0/GxC8TLVwHJqCQKCZs6TYDFx8rcSVsQtJwARVegdlpJpioRQbs8H8eAh6MatCFFkGsmwLPRGFJUEQHds5DZZDExK81dV/EFhYpDlNrERukswzckliNjMqSgKhXTtaxWfKCUPRZSZUyJWmopGiclU9rGeXTXNkiw+Ckw4daWUqggmWSQxegbkMVOVb8rvfGj2UPRocfEodczRS/refFDUsAMPo0wTnZ09JIYqp4Mr7YDQ5Jt8sqL2FR4i74ZSitRDlm/5M8GH2hdKlse6XlLppxWUuCRGUutkXSNedIx7n0mBTgaGeU8cR1YuFr1sxaFQ/bJ7ojnTGKYKzU0mJIjS12Uf4KxQ81dbBYFDISBud8YXjTRlvBKbLBNcpfOvoROFd7XB+zcjC+eos6mkT7YZL/k2eusgN2P12ae1Ls1iAZwHDeLSsrM0bbEKgEjKWZ+b0Y4F2n8DLrW7Px/mhBwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDEtMjlUMTQ6Mzc6NTErMDA6MDAjXia7AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAxLTI5VDE0OjM3OjUxKzAwOjAwUgOeBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAAASUVORK5CYII=";
+let icon16dateurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABlVBMVEUAAABUWW6ChZRbYHRRV25cYHOYinJhYm1RVmtSV21VWm+rrbhTWG1iZnlcYXU0OlJWW3BnZ3AlK0ZZXnJxdYd4fY1PVGqHipm9v8fb3OBBS21PVGmPk6BiY2+ajHGRiX3U1duViHKumnOQhXJeYW+BeW6trbCAeW41Pl2rrbg1O1Opq7YQFzSWmaZ1eYqxtL1QVWp3e45LUmxwbXBJUW2De3HDqnQvP2xfYW93c3Di4+bi4+f////mw3W2rJv29/r3+Pr6+/z7+/v4+PjtyHW5s6z8/P7PztCzqpu2sKnn6Ovm5+ucqsCMoL3Gy9X8/P3Wt3S8t6/m5+y1pojdvHPVt3SropWKlqqRuORrrfVskb/n5+u7qYPcu3XtyXfmwnSLj41oqfJVpv9mkcT6+vuysK7TtXXEqnSum3ORiHVgfJ9fg6+fqbz6+vq2sKi5o3SynXS0nnO0nnLIrHK2sKfa3OG8qoX+1Hf50Xjxy3f60nj+1XfFr4H/1nf+1HinmHz0zXfCqXW5onTTtnbwy3fuyXfiwXbk7/kLAAAAOnRSTlMAAAAAAAAAAAAAAAAAAAAAAAAKQXaGIJzr/BU7tUXC7/7T/Mc1sfixIdgVzwmyaPwVtyq6GpbvC02GFDa/iQAAAAFiS0dEPKdqYc8AAAAJcEhZcwAADWcAAA1nAbwnJrUAAAAHdElNRQfnAR0OIht/z4WuAAABCUlEQVQY02NgYGRiFhIWERUVERZiZmJkYGBhZBUTl5C0spKUEBdjZWRhYJOSlrG2AQNrGWkpNgZZOXkFGyhQkJeTZVC0tbO3cXC0sXFytrG3s1VkUHJxdXP38PTy9vH183d1UWJQDggMCg4JDQuPiIyKDgxQZlBRVbOOiY2LT0hMSrZSU1dhYNfQTElNS8/IzMrOydXUYGfg0NJ2yAvNLygsKi5x0NbiYODU0S0tK6+orKyqLivV1eFk4OLW06+prQOC2hp9PW4uBkYeA8P6hsampsaGekMDHqBnePmMjJtbWltbmo2N+HgZGBgY+QVMTM3a2sxMTQT4gQqAIoKM5haWlhbmQAYDAwC+0TkTtbceAAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMy0wMS0yOVQxNDozMjozMiswMDowMDLw/uUAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjMtMDEtMjlUMTQ6MzI6MzIrMDA6MDBDrUZZAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAABJRU5ErkJggg=="
+
+var commandline = '';
+var treeBranchEvents = [];
+//идентификаторы событий, для которых ожидаем получение процессов потомков
+var events_for_children_waiting = [];
+var fields = [];
+options = {};
+GetOptionsFromStorage();
+observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
