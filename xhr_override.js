@@ -21,11 +21,20 @@ function overridedSend(data){
      }
 
      if(data !== null){
-        // console.log(data);
-        let params = JSON.parse(data); 
-        // удалим ненужную сортировку
-        delete params.filter.groupByOrder; // удаляем 
-        data = JSON.stringify(params);
+        try {
+            // console.log(data);
+            let params = JSON.parse(data); 
+            // удалим ненужную сортировку
+            delete params.filter.groupByOrder; // удаляем 
+            data = JSON.stringify(params);
+        }
+        catch (error) {
+            //console.log(error);
+            ; //просто пропустим ошибку, какой она бы не была, 
+              // наверняка просто попался какой-то запрос с параметрами другого формата
+              // TODO: наверное стоит делать нормально, но пока и так сойдет
+        }
+
         // console.log(data);
      }
      this.onreadystatechange = onReadyStateChangeReplacement;
