@@ -16,6 +16,7 @@
 function save_options() {
   let vt_api_key = document.getElementById('vt-api-key').value;
   let dont_show_save_event_icons = document.getElementById('dont_show_save_event_icons').checked;
+  let disable_agg_sort = document.getElementById('disable_agg_sort').checked;
   let iplinks = [];
   $(".iplink").each(function(index){
       let name = $(".iplink_name", $(this)).val();
@@ -23,7 +24,7 @@ function save_options() {
       iplinks.push({name, template});
   });
    
-  let options = {vt_api_key, iplinks, dont_show_save_event_icons};
+  let options = {vt_api_key, iplinks, dont_show_save_event_icons, disable_agg_sort};
   chrome.storage.sync.set(
     {options},
     function() {
@@ -50,6 +51,13 @@ function restore_options() {
       }
       else{
         document.getElementById('dont_show_save_event_icons').checked = false;
+      }
+
+      if(items.options.hasOwnProperty('disable_agg_sort')){
+        document.getElementById('disable_agg_sort').checked = items.options['disable_agg_sort'];
+      }
+      else{
+        document.getElementById('disable_agg_sort').checked = false;
       }
       
       iplinks = items.options['iplinks'];
