@@ -627,6 +627,7 @@ async function onPageDetailsReceived(details) {
 
 let count = "5";
 var event_src_host = "";
+var siemUrl = "";
 $( function() {
     $( "#tabs" ).tabs();
 });
