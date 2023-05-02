@@ -991,5 +991,18 @@ var treeBranchEvents = [];
 var events_for_children_waiting = [];
 var fields = [];
 options = {};
-GetOptionsFromStorage();
+GetOptionsFromStorage().then(() => {
+  // Если включен параметр "Отключить новое поведение сортировки при аггрегации (R25.1 и выше)", то
+  // подгрузим код из файла xhr_override.js, который будет убирать из параметров запроса лишнее поле, отвечающее за
+  // новый способ сортировки
+  if('options' in options && 'disable_agg_sort' in options.options && options.options.disable_agg_sort == true) {
+    var s = document.createElement('script');
+    s.src = chrome.runtime.getURL('xhr_override.js');
+    s.onload = function() {
+        this.remove();
+    };
+    (document.head || document.documentElement).appendChild(s);
+  }
+});
+
 observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });

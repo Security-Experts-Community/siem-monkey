@@ -45,7 +45,8 @@
 			"resources": [
 			"img/icon128.png",
 	    	"siemMonkey.css",
-			"customfilters.json"
+			"customfilters.json",
+			"xhr_override.js"
 			],
 			"matches": [
 				"*://*/*"
