@@ -203,20 +203,30 @@ async function processTreeBranch(pre_events, outputelemsuffix="")
     else
     {
         treeBranchEvents.push(pre_events[0]);
-        let uuid = pre_events[0]['uuid'];
         let event_src_host = pre_events[0]['event_src.host'];
         let processStartMsgid = pre_events[0]['msgid'];
-        let parentProcessPid = pre_events[0]['object.process.parent.id'];
-        let parentProcessName = pre_events[0]['object.process.parent.name'];
-        //let siemUrl = window.location.origin;
-        getdata(siemUrl,
-            `event_src.host = "${event_src_host}"` + 
-            ` and msgid = "${processStartMsgid}"` + 
-            ` and object.id = "${parentProcessPid}"` + 
-            ` and object.name = "${parentProcessName}"` +
-            ` and generator.type != 'correlationengine'`,
-            count,
-            processTreeBranch);
+        if('object.process.guid' in pre_events[0]) {
+            let parentProcessPid = pre_events[0]['object.process.parent.guid'];
+            getdata(siemUrl,
+                `event_src.host = "${event_src_host}"` + 
+                ` and msgid = "${processStartMsgid}"` + 
+                ` and object.process.guid = "${parentProcessPid}"` + 
+                ` and generator.type != 'correlationengine'`,
+                count,
+                processTreeBranch);
+        }
+        else {
+            let parentProcessPid = pre_events[0]['object.process.parent.id'];
+            let parentProcessName = pre_events[0]['object.process.parent.name'];
+            getdata(siemUrl,
+                `event_src.host = "${event_src_host}"` + 
+                ` and msgid = "${processStartMsgid}"` + 
+                ` and object.id = "${parentProcessPid}"` + 
+                ` and object.name = "${parentProcessName}"` +
+                ` and generator.type != 'correlationengine'`,
+                count,
+                processTreeBranch);
+        }
     }
 }
 
