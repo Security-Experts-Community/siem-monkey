@@ -182,7 +182,12 @@ async function processTreeBranch(pre_events, outputelemsuffix="")
         root.y0 = 0;
         update(root);
 
-        e = $("<div>", {"class":"openMsgs oneline"}).text(`Открыть в новом окне события запуска этих процессов`).click(
+        $(".open_processes_in_new_window_link").remove();
+        e = $("<div>")
+        .addClass("openMsgs oneline")
+        .addClass("open_processes_in_new_window_link")
+        .text(`Открыть в новом окне события запуска этих процессов`)
+        .click(
             function() {
                 let uuids = treeBranchEvents.map(x => `"${x['uuid']}"`);
                 let uuidsstr = uuids.join(", ");
@@ -316,7 +321,12 @@ async function processTreeBranchReverse(pre_events, outputelemsuffix="")
             root.y0 = 0;
             update(root);
 
-            e = $("<div>", {"class":"openMsgs oneline"}).text(`Открыть в новом окне события запуска этих процессов`).click(
+            $(".open_processes_in_new_window_link").remove();
+            e = $("<div>")
+            .addClass("openMsgs oneline")
+            .addClass("open_processes_in_new_window_link")
+            .text(`Открыть в новом окне события запуска этих процессов`)
+            .click(
                 function()    {
                     //let siemUrl = window.location.origin;
                     let uuids = treeBranchEvents.map(x => `"${x['uuid']}"`);
