@@ -199,6 +199,9 @@ async function vt3(hash)
                 "groupValues":null,
                 "timeFrom":tfrom,
                 "timeTo":tto};
+    let loading = document.createElement("div");
+    loading.classList.add("lds-dual-ring");
+    $(`#output${outputelemsuffix}`).html(loading); 
     $.ajax
     (
         {
@@ -208,10 +211,9 @@ async function vt3(hash)
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(params),
             success: function(msg) {
+                $(".lds-dual-ring").remove();
                 let events = msg['events'];
                 callback(events, outputelemsuffix);
-                let body = $("body");
-                body.removeClass("loading");
         }
     });
 }
@@ -600,8 +602,8 @@ async function onPageDetailsReceived(details) {
     .appendTo("#mlinks")
     .click(function(){
         treeBranchEvents = [];
-        let body = $("body");
-        body.addClass("loading");
+        //let body = $("body");
+        //body.addClass("loading");
         let count = $("#count").val();
         $('#output').replaceWith("<div id=\"output\"></div>" );
         let uuid = details.params['uuid'].replace(/[\n\r'"]+/g, '');
