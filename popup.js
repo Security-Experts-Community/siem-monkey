@@ -230,6 +230,9 @@ function countGroupBy(siemUrl, filter, group, callback)
         "fields": [`${group}`, `subject.name`],
         "top": null
     }
+    let loading = document.createElement("div");
+    loading.classList.add("lds-dual-ring");
+    $(`#output`).html(loading); 
     $.ajax
     (
         {
@@ -240,8 +243,7 @@ function countGroupBy(siemUrl, filter, group, callback)
             data: JSON.stringify(params),
             success: function(msg)
             {
-                $("body").removeClass("loading");
-
+                $(".lds-dual-ring").remove();
                 msg.forEach( (element) => {
                     let session = element["values"][0];
                     let sessionUser = element["values"][1];
@@ -252,8 +254,6 @@ function countGroupBy(siemUrl, filter, group, callback)
                     .text(`Найти процессы в сессии ${sessionUser} ${session} (число процессов = ${sessionProcesses})`)
                     .click(function() {
                         $("#output").empty();
-                        let body = $("body");
-                        body.addClass("loading");
                         count = sessionProcesses;
                         let filter = `event_src.host = "${event_src_host}" ` + 
                         `and msgid = "${processStartMsgid}" and datafield1 = ${session} and (correlation_name = null) `; 
@@ -298,6 +298,7 @@ function countGroupByHash(siemUrl, filter, group, callback)
             data: JSON.stringify(params),
             success: function(msg)
             {
+                $(".lds-dual-ring").remove();
                 msg.forEach( (element) => {
                     let hash = element["values"][0];
                     let host = element["values"][1];
@@ -311,8 +312,6 @@ function countGroupByHash(siemUrl, filter, group, callback)
                     vt3(hash);
 
                 });
-                let body = $("body");
-                body.removeClass("loading");
             }
         }
     );
@@ -567,8 +566,6 @@ async function onPageDetailsReceived(details) {
     .appendTo("#mlinks")
     .click(function(){
         $("#output").empty();
-        let body = $("body");
-        body.addClass("loading");
         $('#output').replaceWith("<div id=\"output\"></div>" );
         let filter = `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" `+
         `and (correlation_name = null)`;
@@ -582,8 +579,6 @@ async function onPageDetailsReceived(details) {
     $(`<div class="monkey">Найти процессы в сессии </div>`)
     .appendTo("#mlinks")
     .click(function(){
-        let body = $("body");
-        body.addClass("loading");
         let count = $("#count").val();
         $('#output').replaceWith("<div id=\"output\"></div>" );
         let filter = `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" ` + 
@@ -617,8 +612,6 @@ async function onPageDetailsReceived(details) {
     .appendTo("#mlinks")
     .click(function(){
         treeBranchEvents = [];
-        let body = $("body");
-        body.addClass("loading");
         let count = $("#count").val();
         $('#output').replaceWith("<div id=\"output\"></div>" );
         let uuid = details.params['uuid'].replace(/[\n\r'"]+/g, '');
