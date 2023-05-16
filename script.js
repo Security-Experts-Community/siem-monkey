@@ -208,6 +208,9 @@ let observer = new MutationObserver(async mutations => {
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "task_id") {
                 CommonFieldClick(addedNode, "task_id", GetTaskLink);
               }
+              if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "id") {
+                CommonFieldClick(addedNode, "id", GetNormalizationSearchLink);
+              }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "src.ip") {
                 SrcIPAdd(addedNode);
               }
@@ -691,6 +694,16 @@ function RSTCloudLink(ip_to_check)
   {
     return external_link;
   }
+};
+
+/**
+ * Возвращает ссылку на PTKB с фильтром, содержашим id события для полнотекстового поиска нужно правила нормализации
+ * @param {string} id значение поля id события
+ * @returns ссылка на PTKB
+ */
+function GetNormalizationSearchLink(id) {
+  siemUrl = window.location.origin;
+  return `${siemUrl}:8091/#/siem/knowledge-packs?filter=%7B%22SiemObjectRegex%22:%5B%22${id}%22%5D,"DeploymentStatus":%5B"1"%5D%7D`;
 };
 
 /**

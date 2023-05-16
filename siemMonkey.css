@@ -64,6 +64,11 @@ div.mc-dt[title="external_link"] {
   cursor: pointer; 
 }
 
+div.mc-dt[title="id"] { 
+  color: red; 
+  cursor: pointer; 
+}
+
 div.mc-dt[title="task_id"] { 
   color: red; 
   cursor: pointer; 
