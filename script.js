@@ -200,7 +200,13 @@ let observer = new MutationObserver(async mutations => {
                 await shareableLinkIconAdd(addedNode);
               } 
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML.endsWith(".hash")) {
-                CommonFieldClick(addedNode, addedNode.children[0].innerHTML, GetVirusTotalLinkForHash);
+                if('options' in options && 'hashlinks' in options.options && options.options.hashlinks.length > 0) {
+                  ObjectHashAdd(addedNode, addedNode.children[0].innerHTML);
+                }
+                else{
+                  CommonFieldClick(addedNode, addedNode.children[0].innerHTML, GetVirusTotalLinkForHash);
+                }
+                
               }             
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "external_link") {
                 CommonFieldClick(addedNode, "external_link", GetExternalLink);
@@ -592,6 +598,41 @@ function SrcIPAdd(addedNode) {
   }
 }
 
+function ObjectHashAdd(addedNode, fieldname) {
+  $('.monkeyipinfo').remove();
+  dst_ip_element = $(`div[title=\"${fieldname}\"]`, addedNode);
+  value_node = dst_ip_element.next();
+  value_node_span = $("pdql-fast-filter", value_node);
+
+  dst_ip_element.text(`▸${fieldname}`);
+  dst_ip_element.click(function () {
+    if ($(".ip-check-external-link", addedNode).css("display") === "block") {
+        $(".ip-check-external-link", addedNode).css("display", "none");
+        $(this).text(`▸${fieldname}`);
+    } 
+    else {
+        $(".ip-check-external-link", addedNode).css("display", "block");
+        $(this).text(`▾${fieldname}`);
+    }
+  });
+
+  object_hash_span = $(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`, addedNode);
+  object_hash_span.nextAll("span").remove();
+
+  AddHashExternalServiceLink(object_hash_span, "проверить на VT", VTHashLink);
+  // AddHashExternalServiceLink(object_hash_span, "проверить на RSTCloud", RSTCloudHashLink);
+  if('options' in options && 'hashlinks' in options.options){
+    options.options.hashlinks.forEach(e => {
+      let link = e.template.replace('${hash}', )
+      AddHashExternalServiceLink(object_hash_span, e.name, (hash) => {
+        hash = ExtractHashFromHashValue(hash)
+        return e.template.replace('${hash}', hash)
+      });
+    });
+  }
+}
+
+
 function AddExternalServiceLink(src_ip_span, text, callback) {
   vtdiv = $("<span>");
   vtdiv.addClass('ip-check-external-link');
@@ -604,6 +645,23 @@ function AddExternalServiceLink(src_ip_span, text, callback) {
   });
   vtdiv.click(function () {
     let ip_to_check = $(".pt-preserve-white-space", $(this).parent()).text().replace(/[^.0-9]+/g, "");
+    window.open(callback(ip_to_check), "_blank");
+  });
+  vtdiv.insertAfter(src_ip_span);
+}
+
+function AddHashExternalServiceLink(src_ip_span, text, callback) {
+  vtdiv = $("<span>");
+  vtdiv.addClass('ip-check-external-link');
+  vtdiv.text(text);
+  vtdiv.hover(function(){
+    let ip_to_check = $(".pt-preserve-white-space", $(this).parent()).text();//.replace(/[^.0-9]+/g, "");
+    $(this).css('cursor','pointer').attr('title', callback(ip_to_check));
+    }, function() {
+    $(this).css('cursor','auto');
+  });
+  vtdiv.click(function () {
+    let ip_to_check = $(".pt-preserve-white-space", $(this).parent()).text();//.replace(/[^.0-9]+/g, "");
     window.open(callback(ip_to_check), "_blank");
   });
   vtdiv.insertAfter(src_ip_span);
@@ -639,6 +697,43 @@ function RSTCloudLink(ip_to_check)
   return `https://www.rstcloud.com/ioc-lookup-results/?search=${ip_to_check}`;
 }
 
+function VTHashLink(hash_to_check)
+{
+  hash_to_check = ExtractHashFromHashValue(hash_to_check);
+  console.log(hash_to_check);
+  return `https://www.virustotal.com/gui/file/${hash_to_check}/details`;
+}
+
+function RSTCloudHashLink(hash_to_check)
+{
+  hash_to_check = ExtractHashFromHashValue(hash_to_check);
+  console.log(hash_to_check);
+  return `https://www.rstcloud.com/ioc-lookup-results/?search=${hash_to_check}`;
+}
+
+function ExtractHashFromHashValue(hash_to_check) {
+  if (hash_to_check.includes(':')) {
+     let hashes = {};
+     let hash_pairs = hash_to_check.split(/\s/);
+     hash_pairs.map( h => {
+       let [key, value] = h.split(/:/);
+       hashes[key.toLowerCase()] = value;
+    });
+    console.log(hashes);
+  
+    if("sha256" in hashes) {
+    hash_to_check = hashes["sha256"];
+    }
+    else if("sha1" in hashes) {
+      hash_to_check = hashes["sha256"];
+    }
+    else if("md5" in hashes) {
+      hash_to_check = hashes["sha256"];
+    }
+  }
+  return hash_to_check;
+}
+
 
 /**
  * Обобщенный обработчик для добавления обработчика события onclick для названия поля события.
@@ -663,10 +758,28 @@ function RSTCloudLink(ip_to_check)
  * @param {string} object_hash значение поля object.hash (или других аналогичных полей)
  * @returns 
  */
- function GetVirusTotalLinkForHash(object_hash) {
+function GetVirusTotalLinkForHash(object_hash) {
   object_hash = object_hash.trim("↵");
   if (object_hash.includes(':')) {
-    object_hash = object_hash.split(/:|\s/)[1].replace(/[\W_]+/g, "");
+    let hashes = {};
+    let hash_pairs = object_hash.split(/\s/);
+    hash_pairs.map( h => {
+      let [key, value] = h.split(/:/);
+      hashes[key.toLowerCase()] = value;
+  });
+  console.log(hashes);
+ 
+  if("sha256" in hashes) {
+    object_hash = hashes["sha256"];
+  }
+  else if("sha1" in hashes) {
+    object_hash = hashes["sha1"];
+  }
+  else if("md5" in hashes) {
+    object_hash = hashes["md5"];
+  }
+
+    //object_hash = object_hash.split(/:|\s/)[1].replace(/[\W_]+/g, "");
   }
   return `https://www.virustotal.com/gui/file/${object_hash}/detection`;
 }

@@ -24,7 +24,15 @@ function save_options() {
       iplinks.push({name, template});
   });
    
-  let options = {vt_api_key, iplinks, dont_show_save_event_icons, disable_agg_sort};
+  let hashlinks = [];
+  $(".hashlink").each(function(index){
+      let name = $(".hashlink_name", $(this)).val();
+      let template = $(".hashlink_template", $(this)).val();
+      hashlinks.push({name, template});
+  });
+ 
+
+  let options = {vt_api_key, iplinks, hashlinks, dont_show_save_event_icons, disable_agg_sort};
   chrome.storage.sync.set(
     {options},
     function() {
@@ -67,8 +75,19 @@ function restore_options() {
         $("#iplinks_container").append(getNewRow(e.name, e.template));
       });
   
-      $("#iplinks_container").append(getNewEmptyRow());
+      //$("#iplinks_container").append(getNewEmptyRow());
 
+      $(".delete_row").click(function() {
+        $(this).parent().remove();
+      });
+
+      hashlinks = items.options['hashlinks'];
+      console.log(iplinks);
+
+      hashlinks.forEach(e => {
+        $("#hashlinks_container").append(getNewHashRow(e.name, e.template));
+      });
+  
       $(".delete_row").click(function() {
         $(this).parent().remove();
       });
@@ -82,7 +101,14 @@ $("#addrow").click(function(){
   $(".delete_row").click(function() {
     $(this).parent().remove();
   });
-})
+});
+
+$("#addhashrow").click(function(){
+  $("#hashlinks_container").append(getNewEmptyHashRow());
+  $(".delete_row").click(function() {
+    $(this).parent().remove();
+  });
+});
 
 
 function getNewEmptyRow(){
@@ -109,7 +135,29 @@ function getNewRow(name, template){
 }
 
 
+function getNewEmptyHashRow(){
+  let newrow = `<div class="hashlink">` +
+  `<label for="name">Название: </label>` +
+  `<input type="text" class="hashlink_name"/>` +
+  `<label for="template">Шаблон: </label>` +
+  `<input type="text" class="hashlink_template" placeholder="https://your-favorite-ip-check-service.net/api/path/\${hash}/info"/>` +
+  `<span class="delete_row" title="Удалить">❌</span>` +
+  `</div>`;
+  return newrow;
+}
+
+
+function getNewHashRow(name, template){
+  let newrow = `<div class="hashlink">` +
+  `<label for="name">Название: </label>` +
+  `<input id="name" type="text" class="hashlink_name" value="${name}"/>` +
+  `<label for="template">Шаблон: </label>` +
+  `<input id="template" type="text" class="hashlink_template" value="${template}" placeholder="https://your-favorite-ip-check-service.net/api/path/\${hash}/info"/>` +
+  `<span class="delete_row" title="Удалить">❌</span>` +
+  `</div>`;
+  return newrow;
+}
+
+
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
-
-

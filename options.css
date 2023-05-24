@@ -51,6 +51,36 @@ div.iplinks_container {
     font-weight: bold;
 }
 
+div.hashlinks_container {
+    margin-top: 15px;
+}
+
+.hashlink {
+    display: flex; 
+    flex-direction: row;
+  }
+  
+.hashlink input {
+    display: block; 
+  }
+
+ .hashlink_name {
+    width: 32em;
+    margin: 5px;
+} 
+
+.hashlink_template {
+    width: 100em;
+    margin: 5px;
+}
+
+.hashlink  label {
+    text-align: left;
+    display: inline-block;
+    margin-top: 0.5em;
+    font-weight: bold;
+}
+
 span.delete_row {
     margin-top: 0.5em;
     cursor: pointer;
