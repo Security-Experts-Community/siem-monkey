@@ -42,6 +42,7 @@
 </div>
 <br/>
 <br/>
+<hr>
 <br/>
 <b>Сервисы для получения информации по IP-адресам:</b>
 <br/>
@@ -52,9 +53,26 @@
    Пример: <b>https://your-favorite-ip-check-service.net/api/path/${ip}/info</b>
 </div>
 <br/>
-<div id="status"></div>
 <div class="buttons">
   <button id="addrow" title="Добавить сервис по проверке IP-адреса">Добавить сервис</button>
+  <!-- <button id="save" title="Сохранить настройки">Сохранить</button> -->
+</div>
+<br/>
+<hr>
+<br/>
+<b>Сервисы для получения информации по хешам:</b>
+<br/>
+<div class="hashlinks_container" id="hashlinks_container">
+  При добавлении дополнительных сервисов по проверке хешей в качестве шаблона для подстановки хеша следует 
+   использовать последовательность ${hash}.
+   <br/>
+   Пример: <b>https://your-favorite-hash-check-service.net/api/path/${hash}/info</b>
+</div>
+<br/>
+
+<div id="status"></div>
+<div class="buttons">
+  <button id="addhashrow" title="Добавить сервис по проверке хеша">Добавить сервис</button>
   <button id="save" title="Сохранить настройки">Сохранить</button>
 </div>
 
