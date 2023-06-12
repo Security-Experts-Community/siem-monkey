@@ -886,7 +886,7 @@ async function ipfieldChangeObserver(addedNode, fieldname){
     src_ip_element.click(function () {
       if ($(".ip-check-external-link", addedNode).css("display") === "block") {
           $(".ip-check-external-link", addedNode).css("display", "none");
-          $(this).text("▸src.ip");
+          $(this).text("▸${fieldname}");
       } 
       else {
           $(".ip-check-external-link", addedNode).css("display", "block");
