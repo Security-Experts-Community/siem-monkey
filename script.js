@@ -870,7 +870,7 @@ async function ipfieldChangeObserver(addedNode, fieldname){
         
         if('options' in options && 'iplinks' in options.options){
           options.options.iplinks.forEach(e => {
-            if(range === "unicast" || e.local){
+            if(range === "unicast" || (range === "private" && e.local)){
               AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
             }
           });
@@ -886,7 +886,7 @@ async function ipfieldChangeObserver(addedNode, fieldname){
     src_ip_element.click(function () {
       if ($(".ip-check-external-link", addedNode).css("display") === "block") {
           $(".ip-check-external-link", addedNode).css("display", "none");
-          $(this).text("▸${fieldname}");
+          $(this).text(`▸${fieldname}`);
       } 
       else {
           $(".ip-check-external-link", addedNode).css("display", "block");
@@ -901,7 +901,7 @@ async function ipfieldChangeObserver(addedNode, fieldname){
 
     if('options' in options && 'iplinks' in options.options){
       options.options.iplinks.forEach(e => {
-        if(range === "unicast" || e.local){
+        if(range === "unicast" || (range === "private" && e.local)){
           AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
         }
       });
