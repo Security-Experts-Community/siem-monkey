@@ -29,6 +29,7 @@
 			 "libs/moment.js/moment-with-locales.js",
 			 "libs/underscore.js/underscore-min.js",
 			 "libs/textarea-helper.js/textarea-helper.js",
+			 "libs/ipaddr.js/ipaddr.min.js",
 			 "update.popup.js",
 			 "processTree.popup.js",
 			 "script.js"],

@@ -21,7 +21,8 @@ function save_options() {
   $(".iplink").each(function(index){
       let name = $(".iplink_name", $(this)).val();
       let template = $(".iplink_template", $(this)).val();
-      iplinks.push({name, template});
+      let local = $(".iplink_local", $(this)).is(':checked');
+      iplinks.push({name, template, local});
   });
    
   let hashlinks = [];
@@ -72,7 +73,7 @@ function restore_options() {
       console.log(iplinks);
 
       iplinks.forEach(e => {
-        $("#iplinks_container").append(getNewRow(e.name, e.template));
+        $("#iplinks_container").append(getNewRow(e.name, e.template, e.local ? "checked" : ""));
       });
   
       //$("#iplinks_container").append(getNewEmptyRow());
@@ -117,18 +118,20 @@ function getNewEmptyRow(){
   `<input type="text" class="iplink_name"/>` +
   `<label for="template">Шаблон: </label>` +
   `<input type="text" class="iplink_template" placeholder="https://your-favorite-ip-check-service.net/api/path/\${ip}/info"/>` +
+  `<input type="checkbox" class="iplink_local" title="Использовать для private-адресов">` +
   `<span class="delete_row" title="Удалить">❌</span>` +
   `</div>`;
   return newrow;
 }
 
 
-function getNewRow(name, template){
+function getNewRow(name, template, checked){
   let newrow = `<div class="iplink">` +
   `<label for="name">Название: </label>` +
   `<input id="name" type="text" class="iplink_name" value="${name}"/>` +
   `<label for="template">Шаблон: </label>` +
   `<input id="template" type="text" class="iplink_template" value="${template}" placeholder="https://your-favorite-ip-check-service.net/api/path/\${ip}/info"/>` +
+  `<input type="checkbox" class="iplink_local" title="Использовать для private-адресов" ${checked}>` +
   `<span class="delete_row" title="Удалить">❌</span>` +
   `</div>`;
   return newrow;

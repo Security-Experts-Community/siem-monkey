@@ -218,10 +218,10 @@ let observer = new MutationObserver(async mutations => {
                 CommonFieldClick(addedNode, "id", GetNormalizationSearchLink);
               }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "src.ip") {
-                SrcIPAdd(addedNode);
+                await ipfieldChangeObserver(addedNode, "src.ip");
               }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "dst.ip") {
-                DstIPAdd(addedNode);  
+                await ipfieldChangeObserver(addedNode, "dst.ip");
               }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "object") {
                 ProcessHandler(addedNode);  
@@ -856,6 +856,64 @@ function AddElementIfNotExist(value_node_span, descendants_tree_icon, classname)
     console.log($(classname))
   }
 }
+
+async function ipfieldChangeObserver(addedNode, fieldname){
+  
+  setTimeout(function(addedNode){
+    let src_ip_span = $(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`, addedNode);
+    src_ip_span.on('DOMSubtreeModified', async function(){
+      setTimeout(function(changedElement){
+        changedElement.nextAll("span").remove();
+        src_ip = changedElement.text();
+        let addr = ipaddr.parse(src_ip);
+        let range = addr.range();
+        
+        if('options' in options && 'iplinks' in options.options){
+          let services = [...options.options.iplinks].reverse();
+          services.forEach(e => {
+            if(range === "unicast" || (range === "private" && e.local)){
+              AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+            }
+          });
+        }
+      
+      },
+      500,
+      $(this))
+    });
+
+    src_ip_element = $(`div[title=\"${fieldname}\"]`, addedNode);
+    src_ip_element.text(`▸${fieldname}`);
+    src_ip_element.click(function () {
+      if ($(".ip-check-external-link", addedNode).css("display") === "block") {
+          $(".ip-check-external-link", addedNode).css("display", "none");
+          $(this).text(`▸${fieldname}`);
+      } 
+      else {
+          $(".ip-check-external-link", addedNode).css("display", "block");
+          $(this).text(`▾${fieldname}`);
+      }
+    });
+
+    src_ip_span.nextAll("span").remove();
+    src_ip = src_ip_span.text();
+    let addr = ipaddr.parse(src_ip);
+    let range = addr.range();
+
+    if('options' in options && 'iplinks' in options.options){
+      let services = [...options.options.iplinks].reverse();
+      services.forEach(e => {
+        if(range === "unicast" || (range === "private" && e.local)){
+          AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
+        }
+      });
+    }
+
+  },
+  500,
+  addedNode);  
+}
+
 
 /**
  * Добавить обработчик появления и изменения значения элемента uuid в правой панели
