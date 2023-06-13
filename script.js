@@ -869,7 +869,8 @@ async function ipfieldChangeObserver(addedNode, fieldname){
         let range = addr.range();
         
         if('options' in options && 'iplinks' in options.options){
-          options.options.iplinks.forEach(e => {
+          let services = [...options.options.iplinks].reverse();
+          services.forEach(e => {
             if(range === "unicast" || (range === "private" && e.local)){
               AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
             }
@@ -900,7 +901,8 @@ async function ipfieldChangeObserver(addedNode, fieldname){
     let range = addr.range();
 
     if('options' in options && 'iplinks' in options.options){
-      options.options.iplinks.forEach(e => {
+      let services = [...options.options.iplinks].reverse();
+      services.forEach(e => {
         if(range === "unicast" || (range === "private" && e.local)){
           AddExternalServiceLink(src_ip_span, e.name, (ip) => e.template.replace('${ip}', ip));
         }

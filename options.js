@@ -118,7 +118,7 @@ function getNewEmptyRow(){
   `<input type="text" class="iplink_name"/>` +
   `<label for="template">Шаблон: </label>` +
   `<input type="text" class="iplink_template" placeholder="https://your-favorite-ip-check-service.net/api/path/\${ip}/info"/>` +
-  `<input type="checkbox" class="iplink_local" >` +
+  `<input type="checkbox" class="iplink_local" title="Использовать для private-адресов">` +
   `<span class="delete_row" title="Удалить">❌</span>` +
   `</div>`;
   return newrow;
@@ -131,7 +131,7 @@ function getNewRow(name, template, checked){
   `<input id="name" type="text" class="iplink_name" value="${name}"/>` +
   `<label for="template">Шаблон: </label>` +
   `<input id="template" type="text" class="iplink_template" value="${template}" placeholder="https://your-favorite-ip-check-service.net/api/path/\${ip}/info"/>` +
-  `<input type="checkbox" class="iplink_local" ${checked}>` +
+  `<input type="checkbox" class="iplink_local" title="Использовать для private-адресов" ${checked}>` +
   `<span class="delete_row" title="Удалить">❌</span>` +
   `</div>`;
   return newrow;
