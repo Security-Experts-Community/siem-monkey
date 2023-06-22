@@ -412,7 +412,7 @@ function ProcessHandler(addedNode) {
           `object.process.guid = '${object_process_guid}' and msgid = 1`,
           1, 
           function(e) {
-            uuid = e[0]['uuid'];
+            let uuid = e[0]['uuid'];
             getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranch, "", ttimeto - 86400, ttimeto);
           },
         "",
@@ -423,13 +423,15 @@ function ProcessHandler(addedNode) {
 
     //дерево процессов сессии
     session_tree_icon.click(function (){
+      var commandline = getFieldValueFromSidebar("object.process.cmdline");
+
       w = $(document).width();
       h = $(document).height(); 
       valueNode = $(this).next();
       hostname_value_element = $(".pt-preserve-white-space", valueNode);
       hostname = hostname_value_element.text()
       element = $("div[title=\"object\"] + div span.pt-preserve-white-space", addedNode);
-      newelem = $('<div>').attr("id", "output").attr("title","Родители процесса...")
+      newelem = $('<div>').attr("id", "output").attr("title",`Родители процесса ${commandline}`)
       .dialog(
         {
           height: h - 100,
@@ -440,40 +442,48 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");;
-      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+
       let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
-      if(iframe.length == 0)
-      {
-        commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first").text().trim('↵');
-        uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-        event_src_host = $("div[title=\"event_src.host\"] + div > div > div:first").text().trim('↵');
-        processStartMsgid = $("div[title=\"msgid\"] + div > div > div:first").text().trim('↵');
-        session = $("div[title=\"datafield1\"] + div > div > div:first").text().trim('↵');
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      }
-      else
-      {
-        commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        event_src_host = $("div[title=\"event_src.host\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        processStartMsgid = $("div[title=\"msgid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        session = $("div[title=\"datafield1\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
+
+
+      let msgid = getFieldValueFromSidebar("msgid");
+      let event_src_host = getFieldValueFromSidebar("event_src.host");
+      let processStartMsgid = getFieldValueFromSidebar("msgid"); 
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      let session = getFieldValueFromSidebar("object.account.session_id");
+      
+      let time = getTimeValueFromSidebar();
+
       
       // ограничение по числу процессов
       // TODO: придумать способ задавать этот параметр при необходимости
       count = 1000;
 
-      timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      timeto = timeParsed.toDate();
-      ttimeto = timeto.getTime()/1000;
+      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeto = timeParsed.toDate();
+      let ttimeto = timeto.getTime()/1000;
 
       gtfrom = ttimeto - 86400;
       gtto = ttimeto;
+      if(msgid === '1' || msgid === '4688') {
+        getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and object.account.session_id = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+      }
+      else {
+        getdata(siemUrl,
+          `object.process.guid = '${object_process_guid}' and msgid = 1`,
+          1, 
+          function(e) {
+            let event_src_host = e[0]['event_src.host'];
+            let processStartMsgid = e[0]['msgid'];
+            let session = e[0]['object.account.session_id'];
 
-      getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and datafield1 = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+            getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and object.account.session_id = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+          },
+        "",
+        ttimeto - 86400, // 1 сутки назад
+        ttimeto);
+      }
     });
 
     descendants_tree_icon.click(function (){
