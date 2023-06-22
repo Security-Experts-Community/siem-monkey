@@ -118,12 +118,6 @@ let observer = new MutationObserver(async mutations => {
         .after($('<span>').addClass('mc-text-light').text(` (${desc})`));
       }
 
-      if($(mutation.target.parentNode).is('.pt-preserve-white-space', '.ng-binding ng-scope') &&
-      mutation.target.parentNode.innerText === 'process'){
-        sidebarElement = $(mutation.target.parentNode).parents("mc-sidebar-opened");
-        ProcessHandler(sidebarElement); 
-      }
-
       if(mutation.target.parentNode && mutation.target.parentNode.nodeName === 'EVENTS-FILTER-POPOVER'){
         // ━━━━━★. *･｡ﾟ✧⁺
         if(fields.length == 0)
@@ -347,7 +341,7 @@ function ProcessHandler(addedNode) {
   let hostname_element = $("div[title=\"object\"]", addedNode);
   let value_node = hostname_element.next();
   let value = $(".pt-preserve-white-space", value_node).text().trim("↵");
-  if(value === "process") {
+  //if(value === "process") {
 
     let value_node_span = $("pdql-fast-filter", value_node);
         
@@ -366,6 +360,13 @@ function ProcessHandler(addedNode) {
     //одна ветка в дереве предков процесса
     ancestors_branch_icon.click(function (){
       var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
+
       w = $(document).width();
       h = $(document).height(); 
 
@@ -396,10 +397,8 @@ function ProcessHandler(addedNode) {
       gtfrom = ttimeto - 86400; // и на сутки назад
       gtto = ttimeto;
 
-
       let uuid = getFieldValueFromSidebar("uuid");
       let msgid = getFieldValueFromSidebar("msgid");
-      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
 
       treeBranchEvents = [];
 
@@ -425,6 +424,12 @@ function ProcessHandler(addedNode) {
     //дерево процессов сессии
     session_tree_icon.click(function (){
       var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
 
       w = $(document).width();
       h = $(document).height(); 
@@ -451,7 +456,7 @@ function ProcessHandler(addedNode) {
       let msgid = getFieldValueFromSidebar("msgid");
       let event_src_host = getFieldValueFromSidebar("event_src.host");
       let processStartMsgid = getFieldValueFromSidebar("msgid"); 
-      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+
       let session = getFieldValueFromSidebar("object.account.session_id");
       
       let time = getTimeValueFromSidebar();
@@ -489,6 +494,13 @@ function ProcessHandler(addedNode) {
 
     descendants_tree_icon.click(function (){
       var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
+
       events_for_children_waiting = [];
       w = $(document).width();
       h = $(document).height(); 
@@ -513,7 +525,7 @@ function ProcessHandler(addedNode) {
 
       let msgid = getFieldValueFromSidebar("msgid");
       let uuid = getFieldValueFromSidebar("uuid");
-      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+
 
       let time = getTimeValueFromSidebar();
 
@@ -545,7 +557,7 @@ function ProcessHandler(addedNode) {
         ttimeto);
       }
     });
-  }
+  //}
 }
 
 /**
