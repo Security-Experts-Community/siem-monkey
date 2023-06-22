@@ -118,12 +118,6 @@ let observer = new MutationObserver(async mutations => {
         .after($('<span>').addClass('mc-text-light').text(` (${desc})`));
       }
 
-      if($(mutation.target.parentNode).is('.pt-preserve-white-space', '.ng-binding ng-scope') &&
-      mutation.target.parentNode.innerText === 'process'){
-        sidebarElement = $(mutation.target.parentNode).parents("mc-sidebar-opened");
-        ProcessHandler(sidebarElement); 
-      }
-
       if(mutation.target.parentNode && mutation.target.parentNode.nodeName === 'EVENTS-FILTER-POPOVER'){
         // ━━━━━★. *･｡ﾟ✧⁺
         if(fields.length == 0)
@@ -344,16 +338,16 @@ async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", tt
 function ProcessHandler(addedNode) {
   $('.monkeymagicicon').remove();
 
-  hostname_element = $("div[title=\"object\"]", addedNode);
-  value_node = hostname_element.next();
-  value = $(".pt-preserve-white-space", value_node).text().trim("↵");
-  if(value === "process") {
+  let hostname_element = $("div[title=\"object\"]", addedNode);
+  let value_node = hostname_element.next();
+  let value = $(".pt-preserve-white-space", value_node).text().trim("↵");
+  //if(value === "process") {
 
-    value_node_span = $("pdql-fast-filter", value_node);
+    let value_node_span = $("pdql-fast-filter", value_node);
         
-    ancestors_branch_icon = $(`<span title="Предки процесса...">🦧</span>`);
-    session_tree_icon = $(`<span title="Дерево процессов сессии...">🦍</span>`);
-    descendants_tree_icon = $(`<span title="Потомки процесса...">🐒</span>`)
+    let ancestors_branch_icon = $(`<span title="Предки процесса...">🦧</span>`);
+    let session_tree_icon = $(`<span title="Дерево процессов сессии...">🦍</span>`);
+    let descendants_tree_icon = $(`<span title="Потомки процесса...">🐒</span>`)
 
     ancestors_branch_icon.addClass("monkeymagicicon");
     session_tree_icon.addClass("monkeymagicicon");
@@ -365,11 +359,19 @@ function ProcessHandler(addedNode) {
 
     //одна ветка в дереве предков процесса
     ancestors_branch_icon.click(function (){
+      var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
+
       w = $(document).width();
       h = $(document).height(); 
 
       element = $("div[title=\"object\"] + div span.pt-preserve-white-space", addedNode);
-      newelem = $('<div>').attr("id", "output").attr("title","Родители процесса...")
+      newelem = $('<div>').attr("id", "output").attr("title", `Родители процесса ${commandline}`)
       .dialog(
         {
           height: h - 100,
@@ -381,51 +383,61 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");
-      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+
       let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
 
-      commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-      if(commandline == "")
-      {
-        commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first").text().trim('↵');
-      }
+      count = 1;
 
-
-      uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-      if(uuid == "")
-      {
-        uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-      }
-      count = 100;
-
-      time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if(time.length === 0 ) { 
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-        if (time.length === 0) {
-          time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-        }
-      }
-
-      timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      timeto = timeParsed.toDate();
-      ttimeto = timeto.getTime()/1000 + 3600; // на 1 час вперёд
+      let time = getTimeValueFromSidebar();
+      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeto = timeParsed.toDate();
+      let ttimeto = timeto.getTime()/1000 + 3600; // на 1 час вперёд
 
       gtfrom = ttimeto - 86400; // и на сутки назад
       gtto = ttimeto;
+
+      let uuid = getFieldValueFromSidebar("uuid");
+      let msgid = getFieldValueFromSidebar("msgid");
+
       treeBranchEvents = [];
-      getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranch, "", ttimeto - 86400, ttimeto);
+
+      // Если текущее событие - событие запуска процесса, запускаем процесс построения дерева
+      if(msgid === '1' || msgid === '4688') {
+        getdata(siemUrl, `uuid = '${uuid}'`, count, processTreeBranch, "", ttimeto - 86400, ttimeto);
+      }
+      // Иначе ищем доступными средствами соответсвующее событие запуска процесса 
+      else {
+        getdata(siemUrl,
+          `object.process.guid = '${object_process_guid}' and msgid = 1`,
+          1, 
+          function(e) {
+            let uuid = e[0]['uuid'];
+            getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranch, "", ttimeto - 86400, ttimeto);
+          },
+        "",
+        ttimeto - 86400, // 1 сутки назад
+        ttimeto);
+      }
     });
 
     //дерево процессов сессии
     session_tree_icon.click(function (){
+      var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
+
       w = $(document).width();
       h = $(document).height(); 
       valueNode = $(this).next();
       hostname_value_element = $(".pt-preserve-white-space", valueNode);
       hostname = hostname_value_element.text()
       element = $("div[title=\"object\"] + div span.pt-preserve-white-space", addedNode);
-      newelem = $('<div>').attr("id", "output").attr("title","Родители процесса...")
+      newelem = $('<div>').attr("id", "output").attr("title",`Родители процесса ${commandline}`)
       .dialog(
         {
           height: h - 100,
@@ -436,50 +448,65 @@ function ProcessHandler(addedNode) {
           }
         }
       ).prev(".ui-dialog-titlebar").css("background","#114e77").css("color", "white");;
-      //siemUrl = window.location.href.split('#',1).slice(0, -1);
+
       let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
-      if(iframe.length == 0)
-      {
-        commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first").text().trim('↵');
-        uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-        event_src_host = $("div[title=\"event_src.host\"] + div > div > div:first").text().trim('↵');
-        processStartMsgid = $("div[title=\"msgid\"] + div > div > div:first").text().trim('↵');
-        session = $("div[title=\"datafield1\"] + div > div > div:first").text().trim('↵');
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      }
-      else
-      {
-        commandline = $("div[title=\"object.process.cmdline\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        event_src_host = $("div[title=\"event_src.host\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        processStartMsgid = $("div[title=\"msgid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        session = $("div[title=\"datafield1\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
+
+
+      let msgid = getFieldValueFromSidebar("msgid");
+      let event_src_host = getFieldValueFromSidebar("event_src.host");
+      let processStartMsgid = getFieldValueFromSidebar("msgid"); 
+
+      let session = getFieldValueFromSidebar("object.account.session_id");
+      
+      let time = getTimeValueFromSidebar();
+
       
       // ограничение по числу процессов
       // TODO: придумать способ задавать этот параметр при необходимости
       count = 1000;
 
-      timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      timeto = timeParsed.toDate();
-      ttimeto = timeto.getTime()/1000;
+      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeto = timeParsed.toDate();
+      let ttimeto = timeto.getTime()/1000;
 
       gtfrom = ttimeto - 86400;
       gtto = ttimeto;
+      if(msgid === '1' || msgid === '4688') {
+        getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and object.account.session_id = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+      }
+      else {
+        getdata(siemUrl,
+          `object.process.guid = '${object_process_guid}' and msgid = 1`,
+          1, 
+          function(e) {
+            let event_src_host = e[0]['event_src.host'];
+            let processStartMsgid = e[0]['msgid'];
+            let session = e[0]['object.account.session_id'];
 
-      getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and datafield1 = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+            getdata(siemUrl, `event_src.host = "${event_src_host}" and msgid = "${processStartMsgid}" and object.account.session_id = ${session} and (correlation_name = null)`, count, processTree, "", ttimeto - 86400, ttimeto);
+          },
+        "",
+        ttimeto - 86400, // 1 сутки назад
+        ttimeto);
+      }
     });
 
     descendants_tree_icon.click(function (){
-      // treeBranchEvents = [];
+      var commandline = getFieldValueFromSidebar("object.process.cmdline");
+      let object_process_guid = getFieldValueFromSidebar("object.process.guid");
+      // иногда нужный GUID лежит в поле subject.process.guid
+      if(object_process_guid == "") {
+        object_process_guid = getFieldValueFromSidebar("subject.process.guid");
+        commandline = getFieldValueFromSidebar("subject.process.cmdline");
+      }
+
       events_for_children_waiting = [];
       w = $(document).width();
       h = $(document).height(); 
 
       element = $("div[title=\"object\"] + div span.pt-preserve-white-space", addedNode);
-      newelem = $('<div>').attr("id", "output").attr("title","Потомки процесса...")
+      newelem = $('<div>').attr("id", "output").attr("title",`Потомки процесса ${commandline}`)
       .dialog(
         {
           height: h - 100,
@@ -494,32 +521,73 @@ function ProcessHandler(addedNode) {
       //siemUrl = window.location.href.split('#',1).slice(0, -1);
       let siemUrl = window.location.origin;
       var iframe = $('#legacyApplicationFrame'); 
-
-      uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-      if(uuid == "")
-      {
-        uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-      }
       count = 100;
 
-      time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if(time.length === 0 ) { 
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-        if (time.length === 0) {
-          time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-        }
-      }
+      let msgid = getFieldValueFromSidebar("msgid");
+      let uuid = getFieldValueFromSidebar("uuid");
 
-      timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      timeto = timeParsed.toDate();
-      ttimeto = timeto.getTime()/1000 + 86400; // на сутки вперед
+
+      let time = getTimeValueFromSidebar();
+
+      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeto = timeParsed.toDate();
+      let ttimeto = timeto.getTime()/1000 + 86400; // на сутки вперед
 
       gtfrom = ttimeto - 86400 - 600; // и на 10 минут назад на всякий случай
       gtto = ttimeto;
+
+
       treeBranchEvents = [];
-      getdata(siemUrl, `uuid in ['${uuid}']`, count, processTreeBranchReverse, "", ttimeto - 86400 - 600, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+
+      // Если текущее событие - событие запуска процесса, запускаем процесс построения дерева
+      if(msgid === '1' || msgid === '4688') {
+        getdata(siemUrl, `uuid = '${uuid}'`, count, processTreeBranchReverse, "", ttimeto - 86400 - 600, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+      }
+      // Иначе ищем доступными средствами соответсвующее событие запуска процесса 
+      else {
+        getdata(siemUrl,
+          `object.process.guid = '${object_process_guid}' and msgid = 1`,
+          1, 
+          function(e) {
+            let uuid = e[0]['uuid'];
+            getdata(siemUrl, `uuid = '${uuid}'`, count, processTreeBranchReverse, "", ttimeto - 86400 - 600, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+          },
+        "",
+        ttimeto - 86400, // 1 сутки назад
+        ttimeto);
+      }
     });
+  //}
+}
+
+/**
+ * Получить значение поля события из правой панели 
+ * @param {str} fieldName название поля
+ * @returns {str} значение поля
+ */
+function getFieldValueFromSidebar(fieldName) {
+  let iframe = $('#legacyApplicationFrame'); 
+  let fieldValue = $(`div[title=\"${fieldName}\"] + div > div > div:first`, iframe.contents()).text().trim('↵');
+  if (fieldValue == "") {
+    fieldValue = $(`div[title=\"${fieldName}\"] + div > div > div:first`).text().trim('↵');
   }
+  return fieldValue;
+}
+
+/**
+ * Получить значение времени из правой панели
+ * @returns {str} время в виде строки вида 20.06.2023 13:18:49
+ */
+function getTimeValueFromSidebar() {
+  let time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+  if(time.length === 0 ) { 
+    time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
+    if (time.length === 0) {
+      let iframe = $('#legacyApplicationFrame'); 
+      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
+    }
+  }
+  return time;
 }
 
 function ExternalLink(addedNode) {

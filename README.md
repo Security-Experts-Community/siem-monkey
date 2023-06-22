@@ -143,6 +143,11 @@
 Клик по ним позволяет получить во всплывающем окне дерево всех процессов текущей сессии, дерево всех предков, дерево 
 всех потомков, аналогично тому, как это происходит при построении деревьев в окне плагина.
 
+Построение дерева процессов возможно так же для любых событий (в том числе, корреляционных), если у них заполнено поле object.process.guid или subject.process.guid.
+В этом случае плагин сначала самостоятельно находит событие запуска процеса, после чего строит на его основе дерево аналогичным образом, как для событий запуска процессов.  
+<img src="https://github.com/Security-Experts-Community/siem-monkey/assets/51186173/bc3bf37b-db90-4bd7-986f-0bd6bfc21ec4" width="400">    
+
+
 ## Сохранение нормализованного события в виде JSON
 <img src="https://user-images.githubusercontent.com/51186173/231389068-a8a96575-02d4-4286-ac6a-ad73dc23a7ff.png" width="400">  
 
@@ -190,4 +195,3 @@
 [Monkey icons created by Darius Dan - Flaticon](https://www.flaticon.com/free-icons/monkey)  
 Анимация загрузки  
 [loading.io css spinner]( https://loading.io/css/ ) 
-
