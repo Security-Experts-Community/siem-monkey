@@ -189,3 +189,7 @@ div.openMsgs
     transform: rotate(360deg);
   }
 }
+
+events-grouping pdql-fast-filter {
+  max-width: 100% !important;
+}
