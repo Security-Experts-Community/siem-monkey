@@ -210,6 +210,10 @@ let observer = new MutationObserver(async mutations => {
               }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "id") {
                 CommonFieldClick(addedNode, "id", GetNormalizationSearchLink);
+                await fieldAliases(addedNode); 
+              }
+              if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "correlation_name") {
+                await fieldAliases(addedNode); 
               }
               if(addedNode.children.length = 2 && addedNode.children[0].innerHTML === "src.ip") {
                 await ipfieldChangeObserver(addedNode, "src.ip");
@@ -1232,6 +1236,84 @@ if(window.location.pathname != '/ng1/') {
 } 
 
 
+async function fieldAliases(addedNode) {
+  await applyFieldAliases(addedNode);
+  let value_node_span = $("pdql-fast-filter", addedNode);
+  value_node_span.on('DOMSubtreeModified', async function(){
+    // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
+    setTimeout(async function(changedElement){
+      await applyFieldAliases(changedElement);
+    },
+    500,
+    $(this))
+  });
+}
+
+var originalFieldsNames = []
+async function applyFieldAliases(changedElement) {
+  let sidebar = changedElement.closest('mc-sidebar');
+  /// Вернуть всё, как было
+  try {
+    if(originalFieldsNames.length == 0){
+      let msg = await getTaxonomy();
+      originalFieldsNames = msg['fields'];
+    }
+    originalFieldsNames.forEach(x => {
+      let element = $(`div[title=\"${x.name}\"]`, sidebar);
+      element.text(x.name);
+    });
+  }
+  catch (err) {
+    console.log(err);
+  }
+  /// 
+  let fieldAliases;
+  try {
+    let aliases = chrome.runtime.getURL('fieldaliases.json');
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      fieldAliases = JSON.parse(this.response);
+    };
+    xhr.open('GET', aliases, false);
+    xhr.send();
+  }
+  catch (err)
+  {
+    console.log("Не удалось прочитать файл fieldaliases.json");
+    return;
+  }
+
+  if("default" in fieldAliases){
+    let fieldsObj = fieldAliases["default"];
+    Object.keys(fieldsObj).forEach(function (fieldName) {
+      field = $(`div[title=\"${fieldName}\"]`, sidebar);
+      field.text(fieldsObj[fieldName]);
+    });
+  }
+
+
+  let id = $(`div[title=\"id\"] + div > div > div:first`, sidebar).text().trim('↵');
+  if (id in fieldAliases) {
+    let fieldsObj = fieldAliases[id];
+    Object.keys(fieldsObj).forEach(function (fieldName) {
+      field = $(`div[title=\"${fieldName}\"]`, sidebar);
+      field.text(fieldsObj[fieldName]);
+    });
+  }
+
+  let correlation_name = $(`div[title=\"correlation_name\"] + div > div > div:first`, sidebar).text().trim('↵');
+  if (correlation_name in fieldAliases) {
+    let fieldsObj = fieldAliases[correlation_name];
+    Object.keys(fieldsObj).forEach(function (fieldName) {
+      field = $(`div[title=\"${fieldName}\"]`, sidebar);
+      field.text(fieldsObj[fieldName]);
+    });
+  }
+}
+
+
+
+
 var gtfrom = 0;
 var gtto = 0;
 let icondataurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAAABGdBTUEAALGPC/xhBQAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA1nAAANZwG8Jya1AAAAB3RJTUUH5wEdDiU4kuliGwAABGBJREFUSMeNlV1sU2UYx3/v+Wg7t9LRtZRNZARGhM0hH3KB6ASFRASJiTFkRhMSLvRGjCYaEy8kJt7oBYkXRDAxITEsokFEoxdC7LZA5oRByBhjK8SxZXRfrK1td9qevq8X55R2DD+ek5z34n3+/+fzfR7BPGl3T0HOq2qUiQCUKIi0N6fcu455CHE/XCHN4nptp/cJX4PhcwhsyxrPXZS/6le0griPQsyHF1Et+jsNe1vCqwnhdfDkmGaYa1PjZ4qHxTV9HoWohCepfrH207Y1z7F0vmuAIs45ugYT72d+DFRQiPYKleKeyNF9DU+i8WCRXOCb8Yk39J/K9HorUBTFFcVNYmvg41dXPr3AdmW8y/H7b2ywknZYKpKa44EMcTDQXtsw6dluvPaP1stefM1v9pJ8YjzZwefatN4S1A+vfeuFYKM5o+0jwH+JIMR1bbu5Ljj3zN162am3HFx1cK8epp9FbPsX98vi5yZpWmkk3jyT1Hz7N5p+bCZp+l9wEDQxiY2fjaZvv1HVFAZsLMKuQpw/mCDABla5fRCjjxQRNlMPQBgLG4MwVU2GsqUBEokHgEFOUEWEMfrYRRvQxfdUUc0APbzOWsCDRAISZRuZy6Nb6lFuT2U4TSNbMJEM8gtB4AceYQ9JrjDCKd6mxvULRslc1gpHLqXu3CveKCk2kKeHGR5lCcf5Eo3n8XELjYeZZMzV1LjDpVThiKGfjK8488Fj1XkAchiYpBkgSIht5LjIGBNcJY1ABywA8vTRn4l/pp/UW4uiJ3l9xG8v22rWofidMEtZTRgND9UUue4GqJEiw0783OXc3NDZxEfaV+QNIK9/N3e+6me1HpayiU62sQybYaaQ5LCI0YiHDGO0Ue/Ef2PugPcOgOa8KmVhOzXexSJ6sblAJ3FmydIEXOUGQyxnd6lXbGUBdKA5D1NIVZQATJHgcVIM8RSCNawBniXADnaTYMp9D6oopIMspT9fSGUARZQwKzFYT4gp0qSZIsRmGmgmRBQFZCikcLKO4RwJy3MrDiS4yVY0/GxC8TLVwHJqCQKCZs6TYDFx8rcSVsQtJwARVegdlpJpioRQbs8H8eAh6MatCFFkGsmwLPRGFJUEQHds5DZZDExK81dV/EFhYpDlNrERukswzckliNjMqSgKhXTtaxWfKCUPRZSZUyJWmopGiclU9rGeXTXNkiw+Ckw4daWUqggmWSQxegbkMVOVb8rvfGj2UPRocfEodczRS/refFDUsAMPo0wTnZ09JIYqp4Mr7YDQ5Jt8sqL2FR4i74ZSitRDlm/5M8GH2hdKlse6XlLppxWUuCRGUutkXSNedIx7n0mBTgaGeU8cR1YuFr1sxaFQ/bJ7ojnTGKYKzU0mJIjS12Uf4KxQ81dbBYFDISBud8YXjTRlvBKbLBNcpfOvoROFd7XB+zcjC+eos6mkT7YZL/k2eusgN2P12ae1Ls1iAZwHDeLSsrM0bbEKgEjKWZ+b0Y4F2n8DLrW7Px/mhBwAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjMtMDEtMjlUMTQ6Mzc6NTErMDA6MDAjXia7AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDIzLTAxLTI5VDE0OjM3OjUxKzAwOjAwUgOeBwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAAASUVORK5CYII=";
@@ -1239,7 +1321,7 @@ let icon16dateurl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAA
 
 var commandline = '';
 var treeBranchEvents = [];
-//идентификаторы событий, для которых ожидаем получение процессов потомков
+// идентификаторы событий, для которых ожидаем получение процессов потомков
 var events_for_children_waiting = [];
 var fields = [];
 options = {};
