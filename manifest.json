@@ -47,6 +47,7 @@
 			"img/icon128.png",
 	    	"siemMonkey.css",
 			"customfilters.json",
+			"fieldaliases.json",
 			"xhr_override.js"
 			],
 			"matches": [

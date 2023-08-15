@@ -175,6 +175,37 @@
 Изменения поведения вступают в силу после полной перезагрузки страницы.  
 
 
+## Пользовательские названия для полей при их отображении в панели событий  
+<img src="https://github.com/Security-Experts-Community/siem-monkey/assets/51186173/8764523a-eae5-4bfe-b91b-b7331dc2d9fb" width="400">  
+
+Можно настроить отображение собственных имен полей событий. Пример файла конфигурации приведен в файле fieldaliases.example.json. 
+Требуемое сопоставление необходимо указать в файле fieldaliases.json. Поддерживается настройка маппинга названий полей как для всех событий (секция default), 
+так и индивидуально по значению поля id или correlation_name события.  
+
+Пример конфигурационного файла fieldaliases.json  
+```
+{
+    "LSASS_memory_access_SubRule": {
+        "datafield9": "стек вызовов"
+    },
+    "LSASS_Memory_Dump": {
+        "datafield9": "стек вызовов"
+    },
+    "Suspicious_Connection_System_Process": {
+        "datafield19": "продвинутая цепочка"
+    },
+    "PT_UNIX_like_auditd_syslog_structured_syscall_process_start": {
+        "datafield3": "Binary File Access Mode"
+    },
+    "default": {
+        "subject.process.cmdline": "командная строка процесса",
+        "subject.process.parent.cmdline": "командная строка родителя"
+    }
+}
+```  
+ 
+
+
 # Bonus \#1
 Плагин так же позволяет переходить из карточки сессии или карточки атаки в интерфейсе PT NAD к окну MP SIEM в новой вкладке
 для поиска по фильтру событий на основе адресов и номеров портов отправителя и получателя.
