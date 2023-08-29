@@ -134,7 +134,7 @@ let observer = new MutationObserver(async mutations => {
           fields.push('in');
           fields.push('match');
           fields.push('startswith');
-          fields.push('endswidth');
+          fields.push('endswith');
           fields.push('contains');
           fields.push('and');
           fields.push('or');
