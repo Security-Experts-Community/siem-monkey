@@ -390,7 +390,17 @@ function processEventCopyToClipboard(events, outputelemsuffix="")
     }
    });
    navigator.clipboard.writeText(JSON.stringify(event_filtered));
-   let icon = $(".copynormalizedicon");
+   
+   let legacy_events_page = $("legacy-events-page");
+   let searchNode;
+   if(legacy_events_page.length === 1) {
+     searchNode = legacy_events_page[0].shadowRoot;
+   }
+   else {
+     searchNode = document;
+   }
+   
+   let icon = $(".copynormalizedicon", searchNode);
    $('<div>Скопировано...</div>').insertAfter(icon).show().delay(1000).fadeOut();
 }
 

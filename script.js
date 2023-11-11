@@ -95,10 +95,76 @@ function makeSideBarGreatAgain()
 
 let siemMonkeyInUI = setTimeout(function () {
   insertMonkeyIntoUI();
-}, 5000)
+
+  // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
+  // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
+  let legacy_overlay = $("legacy-overlay");
+  if(legacy_overlay.length === 1) {
+    let shadowRoot = legacy_overlay[0].shadowRoot;
+    observer.observe(shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true });
+    let jquery_ui_css;
+    try {
+      let css_url = chrome.runtime.getURL('libs/jquery-ui-1.12.1/jquery-ui.min.css');
+      let xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        jquery_ui_css = this.response;
+      };
+      xhr.open('GET', css_url, false);
+      xhr.send();
+    }
+    catch (err)
+    {
+      console.log("Не удалось прочитать файл libs/jquery-ui-1.12.1/jquery-ui.min.css");
+      return;
+    }
+  
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(jquery_ui_css);
+    shadowRoot.adoptedStyleSheets = [sheet];
+  }
+  
+  let legacy_events_page = $("legacy-events-page");
+  if(legacy_events_page.length === 1){
+    let shadowRoot = legacy_events_page[0].shadowRoot;
+    observer.observe(shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true });
+    let siemMonkeyCSS;
+    try {
+      let css_url = chrome.runtime.getURL('siemMonkey.css');
+      let xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        siemMonkeyCSS = this.response;
+      };
+      xhr.open('GET', css_url, false);
+      xhr.send();
+    }
+    catch (err)
+    {
+      console.log("Не удалось прочитать файл siemMonkey.css");
+      return;
+    }
+  
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(siemMonkeyCSS);
+    shadowRoot.adoptedStyleSheets = [sheet];
+  }
+  else {
+    // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
+    // а CSSы уже и так загружены расширением
+    observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
+  }
+}, 2500)  //TODO: иногда не успевает, надо придумать способ получше
 
 function extractLast( term ) {
-  let textbox = $("events-filter-popover textarea");
+  let textbox = null;
+  let legacy_overlay = $("legacy-overlay"); // UI 26.1
+  if(legacy_overlay.length === 1) {
+    let shadowRoot = legacy_overlay[0].shadowRoot;
+    textbox = $("events-filter-popover textarea", shadowRoot);
+  }
+  else {
+    textbox = $("events-filter-popover textarea");
+  }
+ 
   let end = textbox[0].selectionStart;
   let result = /\S+$/.exec(textbox[0].value.slice(0, end));
   let lastWord = result ? result[0] : "nonexistent_field";
@@ -163,16 +229,16 @@ let observer = new MutationObserver(async mutations => {
             let XY = ta.textareaHelper("caretPos");
             let x = XY.left + 5;
             let y = XY.top + 20;
-            $('.ui-autocomplete').css('width', '230px'); // 230px хватит всем
-            $('.ui-autocomplete').position({my: "left top", at: `left+${x} top+${y}`, of: ta});
+            $('.ui-autocomplete', ta.parent()).css('width', '230px'); // 230px хватит всем
+            $('.ui-autocomplete', ta.parent()).position({my: "left top", at: `left+${x} top+${y}`, of: ta});
           },
           select: function(event, ui) {
             let textbox = $(this);
             let end = textbox[0].selectionStart;
             let start = this.value.lastIndexOf(" ", end);
             let newvalue = this.value.substring(0, start) + " " //старое начало
-            + ui.item.value + " "                              //новая середина
-            + this.value.substring(end, this.value.length);    //старый конец
+            + ui.item.value + " "                               //новая середина
+            + this.value.substring(end, this.value.length);     //старый конец
             this.value = newvalue;
             return false;
           }
@@ -570,6 +636,13 @@ function ProcessHandler(addedNode) {
  * @returns {str} значение поля
  */
 function getFieldValueFromSidebar(fieldName) {
+  let legacy_events_page = $("legacy-events-page");
+  if(legacy_events_page.length === 1) {
+    let shadowRoot = legacy_events_page[0].shadowRoot;
+    let fieldValue = $(`div[title=\"${fieldName}\"] + div > div > div:first`, shadowRoot).text().trim('↵');  
+    return fieldValue;
+  }
+
   let iframe = $('#legacyApplicationFrame'); 
   let fieldValue = $(`div[title=\"${fieldName}\"] + div > div > div:first`, iframe.contents()).text().trim('↵');
   if (fieldValue == "") {
@@ -583,6 +656,14 @@ function getFieldValueFromSidebar(fieldName) {
  * @returns {str} время в виде строки вида 20.06.2023 13:18:49
  */
 function getTimeValueFromSidebar() {
+  let legacy_events_page = $("legacy-events-page");
+  if(legacy_events_page.length === 1) {
+    let shadowRoot = legacy_events_page[0].shadowRoot;
+    // class="layout-padding_no-left mc-sidebar-header__title flex ng-binding"
+    let time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", shadowRoot).text().trim("↵");
+    return time;
+  }
+
   let time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
   if(time.length === 0 ) { 
     time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
@@ -921,11 +1002,24 @@ function GetTaskLink(task_id) {
 
 function AddElementIfNotExist(value_node_span, descendants_tree_icon, classname)
 {
-  if($(classname).length === 0) {
-    value_node_span.after(descendants_tree_icon);
+  let legacy_events_page = $("legacy-events-page");
+  if(legacy_events_page.length === 1) {
+    let shadowRoot = legacy_events_page[0].shadowRoot;
+    if($(classname, shadowRoot).length === 0) {
+      value_node_span.after(descendants_tree_icon);
+    }
+    else{
+      console.log($(classname))
+    }
+
   }
   else {
-    console.log($(classname))
+    if($(classname).length === 0) {
+      value_node_span.after(descendants_tree_icon);
+    }
+    else{
+      console.log($(classname))
+    }
   }
 }
 
@@ -1057,19 +1151,9 @@ function AddDownloadNormalizedSubeventsIcon(addedNode) {
   download_all_subevents_icon.click(function(){
     //siemUrl = window.location.href.split('#',1).slice(0, -1);
     let siemUrl = window.location.origin;
-    var iframe = $('#legacyApplicationFrame'); 
-    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-    if(uuid == "")
-    {
-      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-    }
-    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-    if(time.length === 0 ) { 
-      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if (time.length === 0) {
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
-    }
+    let uuid = getFieldValueFromSidebar('uuid');
+    let time = getTimeValueFromSidebar();
+    
     timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
@@ -1097,19 +1181,8 @@ function AddDownloadNormalizedIcon(addedNode) {
   download_normalized_icon.click(function ()
   {
     let siemUrl = window.location.origin;
-    var iframe = $('#legacyApplicationFrame'); 
-    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-    if(uuid == "")
-    {
-      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-    }
-    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-    if(time.length === 0 ) { 
-      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if (time.length === 0) {
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
-    }
+    let uuid = getFieldValueFromSidebar('uuid');
+    let time = getTimeValueFromSidebar();
     timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
@@ -1121,20 +1194,9 @@ function AddDownloadNormalizedIcon(addedNode) {
   copy_normalized_icon.click(function ()
   {
     let siemUrl = window.location.origin;
-    var iframe = $('#legacyApplicationFrame'); 
-    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-    if(uuid == "")
-    {
-      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-    }
-  time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-    if(time.length === 0 ) { 
-      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if (time.length === 0) {
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
-    }
-  timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    let uuid = getFieldValueFromSidebar('uuid');
+    let time = getTimeValueFromSidebar();
+    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
     gtfrom = ttimeto; 
@@ -1159,32 +1221,36 @@ function AddGetShareableEventLinkIcon(addedNode) {
     if(siemUrl == ""){
       siemUrl = origin;
     }
-    var iframe = $('#legacyApplicationFrame'); 
-    let uuid = $("div[title=\"uuid\"] + div > div > div:first", iframe.contents()).text().trim('↵');
-    if(uuid == "")
-    {
-      uuid = $("div[title=\"uuid\"] + div > div > div:first").text().trim('↵');
-    }
-    time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-    if(time.length === 0 ) { 
-      time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
-      if (time.length === 0) {
-        time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
-      }
-    }
+    let uuid = getFieldValueFromSidebar('uuid');
+    let time = getTimeValueFromSidebar();
     timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime(); 
     let link = `${siemUrl}/#/events/view?where=uuid=%22${uuid}%22&period=range&start=${ttimeto}&end=${ttimeto}`;
     console.log(link);
     navigator.clipboard.writeText(link);
-    let icon = $(".shareableeventlink");
+    let legacy_events_page = $("legacy-events-page");
+    let searchNode;
+    if(legacy_events_page.length === 1) {
+      searchNode = legacy_events_page[0].shadowRoot;
+    }
+    else {
+      searchNode = document;
+    }
+    let icon = $(".shareableeventlink", searchNode);
     $('<div>Ссылка в буфере обмена...</div>').insertAfter(icon).show().delay(500).fadeOut();
   })
 }
 
 async function popup_event_handler() {
-  let iframe = $('#legacyApplicationFrame'); 
+  let applicationNode = null;
+  let legacy_events_page = $("legacy-events-page"); //UI 26.1
+  if(legacy_events_page.length === 1) {
+      applicationNode = legacy_events_page[0].shadowRoot;
+  }
+  else {
+      applicationNode = $('#legacyApplicationFrame').contents(); 
+  }
   let params = {};
 
   try {
@@ -1192,28 +1258,23 @@ async function popup_event_handler() {
       let msg = await getTaxonomy();
       let fields = msg['fields'];
       fields.forEach( x => {
-          params[x.name] = $(`div[title=\"${x.name}\"] + div > div > div:first`, iframe.contents()).text().trim('↵');
+          params[x.name] = $(`div[title=\"${x.name}\"] + div > div > div:first`, applicationNode).text().trim('↵');
       });
-      
-      let selector = "body .mc-sidebar_right > mc-sidebar-opened > header > div.layout-row.flex > div > div";
-      params['time'] = $(selector).text().trim('↵');
-      if(params['time'].length === 0 ) { 
-          params['time'] = $(selector, iframe.contents()).text().trim('↵');
-      }
+      params['time'] = getTimeValueFromSidebar();
   }
   catch(err)
   {
       // если не вышло, то считаем, что мы в NAD, поэтому пробуем получить адреса и порты с карточки сессии/атаки
       // TODO: решить, как быть с NAD - надо как-то определять, что мы точно в NADе
-      params['nad_src_ip'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].ip"]', iframe.contents())
+      params['nad_src_ip'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].ip"]', applicationNode)
       .first().text();
-      params['nad_dst_ip'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].ip"]', iframe.contents())
+      params['nad_dst_ip'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].ip"]', applicationNode)
       .first().text();
-      params['nad_src_port'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].port"]', iframe.contents())
+      params['nad_src_port'] = $('details-endpoint[dir="src"] span[ng-if="::details[dir].port"]', applicationNode)
       .eq(1).text();
-      params['nad_dst_port'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].port"]', iframe.contents())
+      params['nad_dst_port'] = $('details-endpoint[dir="dst"] span[ng-if="::details[dir].port"]', applicationNode)
       .eq(1).text();
-      params['session_start'] = $('div[row-title="Начало"]', iframe.contents()).attr('row-value');
+      params['session_start'] = $('div[row-title="Начало"]', applicationNode).attr('row-value');
   }
   chrome.runtime.sendMessage({
       'title': document.title,
@@ -1338,5 +1399,3 @@ GetOptionsFromStorage().then(() => {
     (document.head || document.documentElement).appendChild(s);
   }
 });
-
-observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
