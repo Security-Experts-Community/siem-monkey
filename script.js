@@ -174,16 +174,6 @@ function extractLast( term ) {
 
 let observer = new MutationObserver(async mutations => {
   for(let mutation of mutations) {
-      if(mutation.target.parentNode && mutation.target.parentNode.nodeName === 'RULES-CARD-LINK'){
-        // Вывод описание правила корреляции на вкладке "Инциденты" в правом сайдбаре
-        correlation_name = $(mutation.target.parentNode).children('span').eq(1).text();
-        $(mutation.target.parentNode).children('span').slice(2).remove();
-        let msg = await getCorrelationRuleInfoByName(correlation_name);
-        let desc = msg['description'];
-        $(mutation.target.parentNode).children('span').eq(1)
-        .after($('<span>').addClass('mc-text-light').text(` (${desc})`));
-      }
-
       if(mutation.target.parentNode && mutation.target.parentNode.nodeName === 'EVENTS-FILTER-POPOVER'){
         // ━━━━━★. *･｡ﾟ✧⁺
         if(fields.length == 0)
@@ -243,6 +233,48 @@ let observer = new MutationObserver(async mutations => {
             return false;
           }
         });
+      }
+
+      //Добавляет описание и ссылку на правило в разделе "события"
+      if(mutation.target.parentNode && mutation.target.parentNode.parentNode 
+        && mutation.target.parentNode.parentNode.nodeName === 'RULES-CARD-LINK'
+        && mutation.target.parentNode.className === 'mc-link ng-binding ng-scope'
+        && 'options' in options && 'dont_show_desc_rules' in options.options && options.options.dont_show_desc_rules === false){
+          
+          let correlation_name_node = $(mutation.target.parentNode.parentNode).children('span.mc-link.ng-scope');
+          $(mutation.target.parentNode.parentNode).children('span.corr-desc').remove();
+          $(mutation.target.parentNode.parentNode).children('i.corr-link').remove();
+          
+          let correlation_name = correlation_name_node.text();
+          let msg = await getCorrelationRuleInfoByName(correlation_name);
+          let [correlation_description, correlation_link_to_ptkb] = corr_name_info(msg);
+
+          setTimeout(AddElementIfNotExist, 0, correlation_name_node, correlation_description);
+          setTimeout(AddElementIfNotExist, 0, correlation_name_node, correlation_link_to_ptkb);
+      }
+
+      //Добавляет описание и ссылку на правило в разделе "инциденты"
+      else if(mutation.target.parentNode && ((mutation.target.parentNode.parentNode 
+        && mutation.target.parentNode.parentNode.nodeName === 'RULES-CARD-LINK')
+        || mutation.target.parentNode.nodeName === 'RULES-CARD-LINK')
+        && mutation.target.className === 'mc-link ng-scope'
+        && 'options' in options && 'dont_show_desc_rules' in options.options && options.options.dont_show_desc_rules === false){
+          
+          let correlation_name_node = $(mutation.target.parentNode).children('span.mc-link.ng-scope');
+          let correlation_name = correlation_name_node.text();
+          let msg = await getCorrelationRuleInfoByName(correlation_name)
+          
+          let corr_desc_old = $(mutation.target.parentNode).children('span.corr-desc').text()
+
+          if(!corr_desc_old || (corr_desc_old && msg['description'] !== corr_desc_old)){
+            $(mutation.target.parentNode).children('span.corr-desc').remove();
+            $(mutation.target.parentNode).children('i.corr-link').remove();
+
+            let [correlation_description, correlation_link_to_ptkb] = corr_name_info(msg);
+        
+            setTimeout(AddElementIfNotExist, 0, correlation_name_node, correlation_description);
+            setTimeout(AddElementIfNotExist, 0, correlation_name_node, correlation_link_to_ptkb);
+          }  
       }
 
       for(let addedNode of mutation.addedNodes) {
@@ -340,6 +372,31 @@ function getCorrelationRuleInfoByName(correlation_name)
   return request;
 }
 
+function corr_name_info(msg) 
+{
+  let description = msg['description'];
+  let objectId = msg['objectId'];
+
+  let correlation_description = $('<span>')
+  .addClass('corr-desc')
+  .addClass('mc-text-light')
+  .text(` (${description})`);
+
+  let correlation_link_to_ptkb = $('<i title="Открыть правило в Knowledge Base">')
+  .addClass('pt-icons')
+  .addClass('pt-icons-external-link_16')
+  .addClass('mc-link__icon')
+  .addClass('corr-link')
+  .css('margin-left', '4px')
+  .css('cursor', 'pointer')
+  .click(async function (){
+    let siemUrl = window.location.origin;
+    let link = `${siemUrl}:8091/#/siem/${objectId}`
+    window.open(link, "_blank");
+  });
+
+  return [correlation_description, correlation_link_to_ptkb];
+};
 
 async function getdata(siemUrl, filter, count, callback, outputelemsuffix="", ttfrom="", ttto="")
 {
