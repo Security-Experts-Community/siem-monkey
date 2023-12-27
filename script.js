@@ -239,7 +239,7 @@ let observer = new MutationObserver(async mutations => {
       if(mutation.target.parentNode && mutation.target.parentNode.parentNode 
         && mutation.target.parentNode.parentNode.nodeName === 'RULES-CARD-LINK'
         && mutation.target.parentNode.className === 'mc-link ng-binding ng-scope'
-        && options.options.dont_show_desc_rules === false){
+        && 'options' in options && 'dont_show_desc_rules' in options.options && options.options.dont_show_desc_rules === false){
           
           let correlation_name_node = $(mutation.target.parentNode.parentNode).children('span.mc-link.ng-scope');
           $(mutation.target.parentNode.parentNode).children('span.corr-desc').remove();
@@ -258,7 +258,7 @@ let observer = new MutationObserver(async mutations => {
         && mutation.target.parentNode.parentNode.nodeName === 'RULES-CARD-LINK')
         || mutation.target.parentNode.nodeName === 'RULES-CARD-LINK')
         && mutation.target.className === 'mc-link ng-scope'
-        && options.options.dont_show_desc_rules === false){
+        && 'options' in options && 'dont_show_desc_rules' in options.options && options.options.dont_show_desc_rules === false){
           
           let correlation_name_node = $(mutation.target.parentNode).children('span.mc-link.ng-scope');
           let correlation_name = correlation_name_node.text();
