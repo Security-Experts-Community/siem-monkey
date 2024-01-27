@@ -364,13 +364,16 @@ async function onPageDetailsReceived(details) {
         else throw `${v} is undefined or empty`;
     });
 
-    // функция для подтсановки значений переменных в шаблон описания фильтра
+    // функция для подстановки значений переменных в шаблон описания фильтра
     let template_descr = (tpl, args) => tpl.replace(/\${((\.|\w)+)}/g, (_, v) => {
         if (!(typeof args[v] == 'undefined' || args[v]== '' )) {
             return (`<span class=parameter>${args[v]}</span>`);
         }
         else throw `${v} is undefined or empty`;
     });
+
+    let based_event = btoa(encodeURIComponent(JSON.stringify(details.params)))
+    $("#saved_event_data").text(based_event);
 
     filters.forEach(filter => {
         try{
