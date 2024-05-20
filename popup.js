@@ -433,7 +433,8 @@ async function onPageDetailsReceived(details) {
         $("#datepickerFrom").datepicker().datepicker("setDate", selectedEventTimeParsedFrom.toDate());
     }
     else{
-        selectedEventTimeParsed = moment(selectedEventTime, "DD.MM.YYYY hh:mm:ss");
+        selectedEventTimeParsed = parseTimeString(selectedEventTime);
+        //selectedEventTimeParsed = moment(selectedEventTime, "DD.MM.YYYY hh:mm:ss");
         selectedEventTimeParsedTo = selectedEventTimeParsed.clone().add(1, 'days');
         selectedEventTimeParsedFrom = selectedEventTimeParsed.clone().subtract(1, 'days');
         $("#datepickerTo").datepicker().datepicker("setDate", selectedEventTimeParsedTo.toDate());
@@ -640,3 +641,11 @@ chrome.runtime.onMessage.addListener(
 }); 
 
 
+function parseTimeString(time) {
+    if (time.includes(".")) {
+      return moment(time, "DD.MM.YYYY hh:mm::ss");  //rus
+    }
+    else {
+      return moment(time, "MM/DD/YYYY hh:mm::ss"); //eng
+    }
+  }

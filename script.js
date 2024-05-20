@@ -152,7 +152,7 @@ let siemMonkeyInUI = setTimeout(function () {
     // а CSSы уже и так загружены расширением
     observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
   }
-}, 2500)  //TODO: иногда не успевает, надо придумать способ получше
+}, 1500)  //TODO: иногда не успевает, надо придумать способ получше
 
 function extractLast( term ) {
   let textbox = null;
@@ -517,7 +517,7 @@ function ProcessHandler(addedNode) {
       count = 1;
 
       let time = getTimeValueFromSidebar();
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeParsed = parseTimeString(time);
       let timeto = timeParsed.toDate();
       let ttimeto = timeto.getTime()/1000 + 3600; // на 1 час вперёд
 
@@ -593,7 +593,7 @@ function ProcessHandler(addedNode) {
       // TODO: придумать способ задавать этот параметр при необходимости
       count = 1000;
 
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeParsed = parseTimeString(time);
       let timeto = timeParsed.toDate();
       let ttimeto = timeto.getTime()/1000;
 
@@ -656,7 +656,7 @@ function ProcessHandler(addedNode) {
 
       let time = getTimeValueFromSidebar();
 
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+      let timeParsed = parseTimeString(time);
       let timeto = timeParsed.toDate();
       let ttimeto = timeto.getTime()/1000 + 86400; // на сутки вперед
 
@@ -1211,7 +1211,7 @@ function AddDownloadNormalizedSubeventsIcon(addedNode) {
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
     
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeParsed = parseTimeString(time);
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
     gtfrom = ttimeto; 
@@ -1240,7 +1240,7 @@ function AddDownloadNormalizedIcon(addedNode) {
     let siemUrl = window.location.origin;
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeParsed = parseTimeString(time);
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
     gtfrom = ttimeto; 
@@ -1253,7 +1253,7 @@ function AddDownloadNormalizedIcon(addedNode) {
     let siemUrl = window.location.origin;
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeParsed = parseTimeString(time);
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime()/1000; 
     gtfrom = ttimeto; 
@@ -1280,7 +1280,7 @@ function AddGetShareableEventLinkIcon(addedNode) {
     }
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
+    timeParsed = parseTimeString(time);
     timeto = timeParsed.toDate();
     ttimeto = timeto.getTime(); 
     let link = `${siemUrl}/#/events/view?where=uuid=%22${uuid}%22&period=range&start=${ttimeto}&end=${ttimeto}`;
@@ -1456,3 +1456,13 @@ GetOptionsFromStorage().then(() => {
     (document.head || document.documentElement).appendChild(s);
   }
 });
+
+
+function parseTimeString(time) {
+  if (time.includes(".")) {
+    return moment(time, "DD.MM.YYYY hh:mm::ss");  //rus
+  }
+  else {
+    return moment(time, "MM/DD/YYYY hh:mm::ss"); //eng
+  }
+}
