@@ -96,13 +96,13 @@ span.ip-check-external-link{
   overflow: hidden;
 }
 
-.node rect {
+div#output .node rect {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 1;
 
 }
-.node rect.noderect {
+div#output .node rect.noderect {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 1;
@@ -110,7 +110,7 @@ span.ip-check-external-link{
   stroke-width: 1.5px;
 }
 
-.node text {
+div#output .node text {
   font: 13px;
   font-family: Roboto, Helvetica Neue, sans-serif;
   pointer-events: none;

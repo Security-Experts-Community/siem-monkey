@@ -248,13 +248,13 @@ div.hashoutput {
   display: block;
 }
 
-.node rect {
+div#output .node rect {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 1;
 }
 
-.node rect.noderect {
+div#output .node rect.noderect {
   cursor: pointer;
   fill: #fff;
   fill-opacity: 1;
