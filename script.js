@@ -13,6 +13,160 @@
 //    limitations under the License.
 
 
+pt_tags = ["pt-siem-app-root", "pt-nad-root"];
+pt_product = false;
+siem_bananas = {
+  ".mc-sidebar_wide": "old",
+  ".mc-sidebar_right": "R24",
+  "mc-sidedar-toggle": "R25",
+};
+siem_ver = "";
+prod_name = "";
+
+function get_prod_name() {
+  let siem_title_elem = $(
+    "body > pt-siem-app-root > pt-siem-header > header > mc-navbar > mc-navbar-container:nth-child(1) > pt-siem-navbar-brand > a > mc-navbar-title"
+  );
+  let siem_title = siem_title_elem.text();
+  let nad_title_elem = $(".mc-navbar-title:first");
+  let nad_title = nad_title_elem.text();
+  if (siem_title.length > 0 || nad_title.length > 0) {
+    return siem_title.length > 0 ? siem_title : nad_title;
+  }
+  return "";
+}
+
+var SearchBananas = function (selectors, callback, interval, timeout) {
+  var time = 0;
+  // exit early if not in pt product
+  $.each(pt_tags, function(index, tag) {
+    if (document.querySelectorAll(tag).length > 0) {
+      pt_product = true;
+    }
+  })
+  if (pt_product == false) {
+    console.log("Monkey doesn't like it here");
+    return;
+  }
+  //
+  var poll = setInterval(function () {
+    let prod_name = get_prod_name();
+    if (prod_name === "NAD") {
+      console.log("NAD is banana!");
+      clearInterval(poll);
+      callback("NAD");
+      return;
+    }
+    if (typeof timeout !== "undefined" && time >= timeout) {
+      clearInterval(poll);
+      console.log("monkey wants BANANAS");
+      return;
+    } else {
+      $.each(siem_bananas, function (banana, ver) {
+        let bananas_found = 0;
+        bananas_found = document.querySelectorAll(banana).length;
+        if (bananas_found == 0) {
+          // no bananas in DOM. try in shadow DOM
+          let legacy_events = $("legacy-events-page");
+          if (legacy_events.length === 1) {
+            let shadowRoot = legacy_events[0].shadowRoot;
+            if (shadowRoot) {
+              bananas_found = $(shadowRoot).find(banana).length;
+            }
+          }
+        }
+        if (bananas_found > 0) {
+          console.log("SIEM is banana!");
+          siem_ver = ver;
+          clearInterval(poll);
+          callback("SIEM");
+          return;
+        }
+      });
+    }
+    time += interval;
+  }, interval);
+};
+
+SearchBananas(
+  siem_bananas,
+  function () {
+    insertMonkeyIntoUI();
+    // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
+    // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
+    let legacy_overlay = $("legacy-overlay");
+    if (legacy_overlay.length === 1) {
+      let shadowRoot = legacy_overlay[0].shadowRoot;
+      observer.observe(shadowRoot, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+      });
+      let jquery_ui_css;
+      try {
+        let css_url = chrome.runtime.getURL(
+          "libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css" // using jquery-ui css just with embedded images
+        );
+        let xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          jquery_ui_css = this.response;
+        };
+        xhr.open("GET", css_url, false);
+        xhr.send();
+      } catch (err) {
+        console.log(
+          "Не удалось прочитать файл libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"
+        );
+        return;
+      }
+
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(jquery_ui_css);
+      shadowRoot.adoptedStyleSheets = [sheet];
+    }
+
+    let legacy_events_page = $("legacy-events-page");
+    if (legacy_events_page.length === 1) {
+      let shadowRoot = legacy_events_page[0].shadowRoot;
+      observer.observe(shadowRoot, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+      });
+      let siemMonkeyCSS;
+      try {
+        let css_url = chrome.runtime.getURL("siemMonkey.css");
+        let xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          siemMonkeyCSS = this.response;
+        };
+        xhr.open("GET", css_url, false);
+        xhr.send();
+      } catch (err) {
+        console.log("Не удалось прочитать файл siemMonkey.css");
+        return;
+      }
+
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(siemMonkeyCSS);
+      shadowRoot.adoptedStyleSheets = [sheet];
+    } else {
+      // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
+      // а CSSы уже и так загружены расширением
+      observer.observe(document, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+      });
+    }
+  },
+  500,
+  6000
+);
+
 function insertMonkeyIntoUI() {
   let siem_title_elem = $("body > pt-siem-app-root > pt-siem-header > header > mc-navbar > mc-navbar-container:nth-child(1) > pt-siem-navbar-brand > a > mc-navbar-title");
   let siem_title = siem_title_elem.text();
@@ -93,67 +247,6 @@ function makeSideBarGreatAgain()
   .delay(100).fadeTo(100,1, function(){$(this).remove();});
 }
 
-let siemMonkeyInUI = setTimeout(function () {
-  insertMonkeyIntoUI();
-
-  // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
-  // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
-  let legacy_overlay = $("legacy-overlay");
-  if(legacy_overlay.length === 1) {
-    let shadowRoot = legacy_overlay[0].shadowRoot;
-    observer.observe(shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true });
-    let jquery_ui_css;
-    try {
-      let css_url = chrome.runtime.getURL('libs/jquery-ui-1.12.1/jquery-ui.min.css');
-      let xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        jquery_ui_css = this.response;
-      };
-      xhr.open('GET', css_url, false);
-      xhr.send();
-    }
-    catch (err)
-    {
-      console.log("Не удалось прочитать файл libs/jquery-ui-1.12.1/jquery-ui.min.css");
-      return;
-    }
-  
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(jquery_ui_css);
-    shadowRoot.adoptedStyleSheets = [sheet];
-  }
-  
-  let legacy_events_page = $("legacy-events-page");
-  if(legacy_events_page.length === 1){
-    let shadowRoot = legacy_events_page[0].shadowRoot;
-    observer.observe(shadowRoot, { childList: true, subtree: true, characterData: true, attributes: true });
-    let siemMonkeyCSS;
-    try {
-      let css_url = chrome.runtime.getURL('siemMonkey.css');
-      let xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        siemMonkeyCSS = this.response;
-      };
-      xhr.open('GET', css_url, false);
-      xhr.send();
-    }
-    catch (err)
-    {
-      console.log("Не удалось прочитать файл siemMonkey.css");
-      return;
-    }
-  
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(siemMonkeyCSS);
-    shadowRoot.adoptedStyleSheets = [sheet];
-  }
-  else {
-    // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
-    // а CSSы уже и так загружены расширением
-    observer.observe(document, { childList: true, subtree: true, characterData: true, attributes: true });
-  }
-}, 2500)  //TODO: иногда не успевает, надо придумать способ получше
-
 function extractLast( term ) {
   let textbox = null;
   let legacy_overlay = $("legacy-overlay"); // UI 26.1
@@ -221,6 +314,12 @@ let observer = new MutationObserver(async mutations => {
             let y = XY.top + 20;
             $('.ui-autocomplete', ta.parent()).css('width', '230px'); // 230px хватит всем
             $('.ui-autocomplete', ta.parent()).position({my: "left top", at: `left+${x} top+${y}`, of: ta});
+            // click is not triggered somehow. but mousedown is working. trigger click from mousedown
+            let items = $(".ui-menu-item", ta.parent());
+            items.on("mousedown", function (event) {
+              event.preventDefault();
+              $(this).click();
+            });
           },
           select: function(event, ui) {
             let textbox = $(this);
