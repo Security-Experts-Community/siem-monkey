@@ -33,6 +33,7 @@
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css">
 		<link rel="stylesheet" type="text/css" href="libs/jquery-ui-timepicker/jquery-ui-timepicker-addon.css">
 		<link rel="stylesheet" type="text/css" href="popup.css">
+		<link rel="stylesheet" href="chat.css">
 		<style>
 
 
@@ -73,6 +74,7 @@
 			  <li><a href="#tabs-0">Процессы</a></li>
 			  <li><a href="#tabs-1">Полезные фильтры</a></li>
 			  <li><a href="#tabs-2">Внешние запросы</a></li>
+			  <li><a href="#tabs-4">SEC AI Assistant</a></li>
 			  <li><a href="#tabs-3">About</a></li>
 			</ul>
 			<div id="tabs-0">
@@ -97,7 +99,6 @@
 
 					<div class="monkeylinks" id="mlinks">
 					</div>
-			
 				</div>
 			</div>
 			<div id="tabs-1">
@@ -109,10 +110,27 @@
 				<span class = "oneline" id="userprofile">
 				</span>
 			</div>
-				<div id="tabs-3">
-					<h1 id="siemmonkey">SiemMonkey</h1>
-					<h2 id="-google-chrome-mp-siem">Плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM</h2>
+			<div id="tabs-4">
+				<div id="chat-widget">
+					<div id="chat-container">
+						<div id="chat-title">Ассистент по анализу события</div>
+						<div id="chat-messages"></div>
+						<div id="chat-input-container">
+							<input id="chat-input" type="text" placeholder="Write your message">
+							<button id="chat-send">Отправить</button>
+							<div id="loading">
+								<div class="spinner"></div>
+								<div class="message">Размышляю...</div>
+								<span id="saved_event_data" hidden></span>
+							</div>   
+						</div>     
+					</div>
 				</div>
+				<script src="/chat.js"></script>
+			</div>
+			<div id="tabs-3">
+				<h1 id="siemmonkey">SiemMonkey</h1>
+				<h2 id="-google-chrome-mp-siem">Плагин к браузеру Google Chrome для упрощения некоторых действий в MP SIEM</h2>
 			</div>
 		</div>
 		<div id="output"></div>
