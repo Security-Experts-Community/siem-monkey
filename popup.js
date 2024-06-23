@@ -426,18 +426,16 @@ async function onPageDetailsReceived(details) {
     if(typeof selectedEventTime === 'undefined'){ 
         // попробуем распарсить по формату из NAD
         let session_start = details.params['session_start'];
-        let session_start_parsed = moment(session_start, "DD MMMM YYYY, hh:mm:ss", "ru");
-        selectedEventTimeParsedTo = session_start_parsed.clone().add(15, 'm');
-        selectedEventTimeParsedFrom = session_start_parsed.clone().subtract(15, 'm');
-        $("#datepickerTo").datepicker().datepicker("setDate", selectedEventTimeParsedTo.toDate());
-        $("#datepickerFrom").datepicker().datepicker("setDate", selectedEventTimeParsedFrom.toDate());
+        selectedEventTimeTo = session_start + 15*60;
+        selectedEventTimeFrom = session_start - 15*60
+        $("#datepickerTo").datepicker().datepicker("setDate", new Date(selectedEventTimeTo*1000));
+        $("#datepickerFrom").datepicker().datepicker("setDate", new Date(selectedEventTimeFrom*1000));
     }
     else{
-        selectedEventTimeParsed = moment(selectedEventTime, "DD.MM.YYYY hh:mm:ss");
-        selectedEventTimeParsedTo = selectedEventTimeParsed.clone().add(1, 'days');
-        selectedEventTimeParsedFrom = selectedEventTimeParsed.clone().subtract(1, 'days');
-        $("#datepickerTo").datepicker().datepicker("setDate", selectedEventTimeParsedTo.toDate());
-        $("#datepickerFrom").datepicker().datepicker("setDate", selectedEventTimeParsedFrom.toDate());
+        selectedEventTimeTo = selectedEventTime + 86400*1000;
+        selectedEventTimeFrom = selectedEventTime - 86400*1000;
+        $("#datepickerTo").datepicker().datepicker("setDate", new Date(selectedEventTimeTo));
+        $("#datepickerFrom").datepicker().datepicker("setDate", new Date(selectedEventTimeFrom));
     }
 
     processStartMsgid = details.params['msgid'].trim("↵");
@@ -472,8 +470,8 @@ async function onPageDetailsReceived(details) {
     let dst_port = details.params['dst.port'].trim("↵");
     event_src_host = details.params['event_src.host'].trim("↵");
     
-    let timestampfrom = selectedEventTimeParsed.clone().subtract(15, 'minutes').unix()*1000;
-    let timestampto = selectedEventTimeParsed.clone().add(15, 'minutes').unix()*1000;
+    let timestampfrom = selectedEventTime - 15*60*1000;
+    let timestampto = selectedEventTime + 15*60*1000;
 
     // Подготовка фильтра для поиска трафика в NAD
     let nadfilter = '';
@@ -638,5 +636,3 @@ chrome.runtime.onMessage.addListener(
         // console.log(message);
         onPageDetailsReceived(message); 
 }); 
-
-
