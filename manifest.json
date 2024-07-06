@@ -33,7 +33,6 @@
 			 "update.popup.js",
 			 "processTree.popup.js",
 			 "script.js"],
-			"css": ["siemMonkey.css","libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"],
 			"all_frames": true
         }
     ],
@@ -45,7 +44,7 @@
 		{
 			"resources": [
 			"img/icon128.png",
-	    	"siemMonkey.css",
+			"siemMonkey.css",
 			"customfilters.json",
 			"fieldaliases.json",
 			"xhr_override.js",
