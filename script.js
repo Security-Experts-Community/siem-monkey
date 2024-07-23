@@ -1247,21 +1247,11 @@ async function ipfieldChangeObserver(addedNode, fieldname){
   setTimeout(function(addedNode){
     let src_ip_span = $(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`, addedNode);
     const ip_span_observer = new MutationObserver(mutationList =>
-      // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
       setTimeout(function(changedElement){
         $(changedElement).nextAll("span").remove();
         src_ip = $(changedElement).text();
         let addr = ipaddr.parse(src_ip);
         let range = addr.range();
-
-        if (range === "unicast") {
-          AddExternalServiceLink(src_ip_span, "проверить на VT", VTLink);
-          AddExternalServiceLink(src_ip_span, "проверить на AbuseIPDB", AbuseIPDBLink);
-          AddExternalServiceLink(src_ip_span, "проверить на IP-API", IPAPILink);
-          AddExternalServiceLink(src_ip_span, "проверить на SPUR", SpurLink);
-          AddExternalServiceLink(src_ip_span, "проверить на Whois7", Whois7Link);
-          AddExternalServiceLink(src_ip_span, "проверить на RSTCloud", RSTCloudLink);
-        }
 
         if('options' in options && 'iplinks' in options.options){
           let services = [...options.options.iplinks].reverse();
@@ -1298,15 +1288,6 @@ async function ipfieldChangeObserver(addedNode, fieldname){
     src_ip = src_ip_span.text();
     let addr = ipaddr.parse(src_ip);
     let range = addr.range();
-
-    if (range === "unicast") {
-      AddExternalServiceLink(src_ip_span, "проверить на VT", VTLink);
-      AddExternalServiceLink(src_ip_span, "проверить на AbuseIPDB", AbuseIPDBLink);
-      AddExternalServiceLink(src_ip_span, "проверить на IP-API", IPAPILink);
-      AddExternalServiceLink(src_ip_span, "проверить на SPUR", SpurLink);
-      AddExternalServiceLink(src_ip_span, "проверить на Whois7", Whois7Link);
-      AddExternalServiceLink(src_ip_span, "проверить на RSTCloud", RSTCloudLink);
-    }
 
     if('options' in options && 'iplinks' in options.options){
       let services = [...options.options.iplinks].reverse();
@@ -1536,7 +1517,6 @@ if(window.location.pathname != '/ng1/') {
 async function fieldAliases(addedNode) {
   await applyFieldAliases(addedNode);
   let value_node_span = $("pdql-fast-filter", addedNode);
-  //value_node_span.on('DOMSubtreeModified', async function(){
   const value_node_span_observer = new MutationObserver(mutationList =>
     // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
     setTimeout(async function(changedElement){
