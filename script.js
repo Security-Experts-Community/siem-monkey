@@ -1183,10 +1183,10 @@ async function ipfieldChangeObserver(addedNode, fieldname){
   
   setTimeout(function(addedNode){
     let src_ip_span = $(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`, addedNode);
-    src_ip_span.on('DOMSubtreeModified', async function(){
+    const ip_span_observer = new MutationObserver(mutationList =>
       setTimeout(function(changedElement){
-        changedElement.nextAll("span").remove();
-        src_ip = changedElement.text();
+        $(changedElement).nextAll("span").remove();
+        src_ip = $(changedElement).text();
         let addr = ipaddr.parse(src_ip);
         let range = addr.range();
         
@@ -1201,8 +1201,13 @@ async function ipfieldChangeObserver(addedNode, fieldname){
       
       },
       500,
-      $(this))
-    });
+      src_ip_span)
+    );
+
+    span_to_observe = addedNode.querySelector(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`);
+    if (span_to_observe) {
+      ip_span_observer.observe(span_to_observe,{childList: true, subtree: true, characterDataOldValue: true,});
+    }
 
     src_ip_element = $(`div[title=\"${fieldname}\"]`, addedNode);
     src_ip_element.text(`▸${fieldname}`);
@@ -1249,7 +1254,7 @@ async function uuidChange(addedNode){
     let value_node_span = $("pdql-fast-filter", addedNode);
   
     // нарисовать иконки при изменении значения поля uuid
-    value_node_span.on('DOMSubtreeModified', async function(){
+    const value_span_observer = new MutationObserver(mutationList =>
     // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
       setTimeout(function(changedElement){
         let sidebar = changedElement.closest('mc-sidebar');
@@ -1262,8 +1267,13 @@ async function uuidChange(addedNode){
         }
       },
       500,
-      $(this))
-    });
+      value_node_span)
+    );
+
+    value_node_to_observe = addedNode.querySelector("pdql-fast-filter");
+    if (value_node_to_observe) {
+      value_span_observer.observe(value_node_to_observe,{childList: true, subtree: true, characterDataOldValue: true,});
+    }
 
     // нарисовать иконки загрузки событий при появлении uuid первый раз на странице
     let sidebar = $(addedNode).closest('mc-sidebar');
@@ -1456,14 +1466,19 @@ if(window.location.pathname != '/ng1/') {
 async function fieldAliases(addedNode) {
   await applyFieldAliases(addedNode);
   let value_node_span = $("pdql-fast-filter", addedNode);
-  value_node_span.on('DOMSubtreeModified', async function(){
+  const value_node_span_observer = new MutationObserver(mutationList =>
     // костылим ожидание, пока загрузится всё в правой панели, 500 мс должно хватить
     setTimeout(async function(changedElement){
       await applyFieldAliases(changedElement);
     },
     500,
-    $(this))
-  });
+    value_node_span)
+  );
+
+  value_node_span_to_observe = addedNode.querySelector("pdql-fast-filter");
+  if (value_node_span_to_observe) {
+    value_node_span_observer.observe(value_node_span_to_observe,{childList: true, subtree: true, characterDataOldValue: true,});
+  }
 }
 
 var originalFieldsNames = []
