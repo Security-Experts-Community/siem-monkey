@@ -13,6 +13,33 @@
 //    limitations under the License.
 
 
+oldHref = document.location.href.split("?")[0];
+// inject script in main app and get some info from there. we want window.appConfig
+// app locale is stored there
+window.appConfig = "";
+function injectScript(file_path, tag) {
+  var node = document.getElementsByTagName(tag)[0];
+  var script = document.createElement('script');
+  script.setAttribute('type', 'text/javascript');
+  script.setAttribute('src', file_path);
+  node.appendChild(script);
+}
+injectScript(chrome.runtime.getURL('web_accessible_resources.js'), 'body');
+
+window.addEventListener("message", (event) => {
+  // We only accept messages from ourselves
+  if (event.source !== window) {
+    return;
+  }
+
+  if (event.data.type && (event.data.type === "FROM_PAGE")) {
+    console.log("SIEM Monkey: main page data received: " + event.data.text);
+    if (event.data.text.length > 0) {
+      window.appConfig = JSON.parse(event.data.text);
+    }
+  }
+}, false);
+
 pt_tags = ["pt-siem-app-root", "pt-nad-root"];
 pt_product = false;
 siem_bananas = {
@@ -22,6 +49,12 @@ siem_bananas = {
 };
 siem_ver = "";
 prod_name = "";
+pt_locale_date_formats = {
+  "ru-RU":"d.M.y H:m:s",
+  "en-US":"M/d/y H:m:s",
+  "user":"",
+};
+date_format = "";
 
 function get_prod_name() {
   let siem_title_elem = $(
@@ -36,30 +69,34 @@ function get_prod_name() {
   return "";
 }
 
-var SearchBananas = function (selectors, callback, interval, timeout) {
+function SearchBananas (selectors, callback, interval, timeout) {
   var time = 0;
   // exit early if not in pt product
   $.each(pt_tags, function(index, tag) {
     if (document.querySelectorAll(tag).length > 0) {
       pt_product = true;
+      if (tag == "pt-siem-app-root") {
+        monitorSIEMnav();
+      }
     }
   })
   if (pt_product == false) {
-    console.log("Monkey doesn't like it here");
+    console.log("SIEM Monkey: monkey doesn't like it here");
     return;
   }
-  //
+
   var poll = setInterval(function () {
     let prod_name = get_prod_name();
     if (prod_name === "NAD") {
-      console.log("NAD is banana!");
+      console.log("SIEM Monkey: NAD is banana!");
       clearInterval(poll);
       callback("NAD");
       return;
     }
+
     if (typeof timeout !== "undefined" && time >= timeout) {
       clearInterval(poll);
-      console.log("monkey wants BANANAS");
+      console.log("SIEM Monkey: monkey wants BANANAS");
       return;
     } else {
       $.each(siem_bananas, function (banana, ver) {
@@ -76,7 +113,7 @@ var SearchBananas = function (selectors, callback, interval, timeout) {
           }
         }
         if (bananas_found > 0) {
-          console.log("SIEM is banana!");
+          console.log("SIEM Monkey: SIEM is banana!");
           siem_ver = ver;
           clearInterval(poll);
           callback("SIEM");
@@ -88,93 +125,107 @@ var SearchBananas = function (selectors, callback, interval, timeout) {
   }, interval);
 };
 
-SearchBananas(
-  siem_bananas,
-  function () {
-    insertMonkeyIntoUI();
-    // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
-    // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
-    let legacy_overlay = $("legacy-overlay");
-    if (legacy_overlay.length === 1) {
-      let shadowRoot = legacy_overlay[0].shadowRoot;
-      observer.observe(shadowRoot, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-      });
-      let jquery_ui_css;
-      try {
-        let css_url = chrome.runtime.getURL(
-          "libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css" // using jquery-ui css just with embedded images
-        );
-        let xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          jquery_ui_css = this.response;
-        };
-        xhr.open("GET", css_url, false);
-        xhr.send();
-      } catch (err) {
-        console.log(
-          "Не удалось прочитать файл libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"
-        );
-        return;
-      }
+/**
+ * Adopting a constructed stylesheet to be used by the document or ShadowRoots 
+ * @param {*} doc document or ShadowRoot to adopt
+ * @param {*} path CSS file path
+ */
+function adoptCSS(doc, path) {
+  let MonkeyCSS;
+  try {
+    let css_url = chrome.runtime.getURL(path);
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      MonkeyCSS = this.response;
+    };
+    xhr.open("GET", css_url, false);
+    xhr.send();
+  } catch (err) {
+    console.log("Не удалось прочитать файл " + path);
+    return;
+  }
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(MonkeyCSS);
+  doc.adoptedStyleSheets = [sheet];
+}
 
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(jquery_ui_css);
-      shadowRoot.adoptedStyleSheets = [sheet];
-    }
+function siemMonkeyBind(product) {
+  // Let's set locale and string formats for date/time conversions
+  // TODO: add custom locale format to options
+  let pt_locale;
+  if (window.appConfig) {
+    pt_locale = window.appConfig.locale;
+  }
+  if (pt_locale_date_formats["user"].length > 0) {
+    date_format = pt_locale_date_formats["user"];
+    console.log("SIEM Monkey: using custom date format. " + date_format);
+  } else if (pt_locale && pt_locale_date_formats[pt_locale]) {
+    date_format = pt_locale_date_formats[pt_locale];
+    console.log("SIEM Monkey: " + pt_locale + " locale is set by App. Date format is " + date_format);
+  } else {
+    date_format = pt_locale_date_formats["ru-RU"];
+    console.log("SIEM Monkey: Локаль не найдена и не установлена пользователем. Ну и пожалуйста. Ну и будет ru-RU.");
+  }
+  if (!$("img.monkeydropbtn").length) {
+    insertMonkeyIntoUI(product);
+  }
 
-    let legacy_events_page = $("legacy-events-page");
-    if (legacy_events_page.length === 1) {
-      let shadowRoot = legacy_events_page[0].shadowRoot;
-      observer.observe(shadowRoot, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-      });
-      let siemMonkeyCSS;
-      try {
-        let css_url = chrome.runtime.getURL("siemMonkey.css");
-        let xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          siemMonkeyCSS = this.response;
-        };
-        xhr.open("GET", css_url, false);
-        xhr.send();
-      } catch (err) {
-        console.log("Не удалось прочитать файл siemMonkey.css");
-        return;
-      }
+  // load CSS in main tree
+  let ui_css_path = chrome.runtime.getURL("libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css");
+  let ui_css_path2 = chrome.runtime.getURL("siemMonkey.css");
+  $('head').append($('<link>')
+    .attr("rel","stylesheet")
+    .attr("type","text/css")
+    .attr("href", ui_css_path));
+  $('head').append($('<link>')
+    .attr("rel","stylesheet")
+    .attr("type","text/css")
+    .attr("href", ui_css_path2));
 
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(siemMonkeyCSS);
-      shadowRoot.adoptedStyleSheets = [sheet];
-    } else {
-      // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
-      // а CSSы уже и так загружены расширением
-      observer.observe(document, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-      });
-    }
-  },
-  500,
-  6000
-);
+  // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
+  // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
+  let legacy_overlay = $("legacy-overlay");
+  if (legacy_overlay.length === 1) {
+    let shadowRoot = legacy_overlay[0].shadowRoot;
+    observer.observe(shadowRoot, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
+    adoptCSS(shadowRoot, "libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"); // using jquery-ui css just with embedded images
+  }
 
-function insertMonkeyIntoUI() {
+  let legacy_events_page = $("legacy-events-page");
+  if (legacy_events_page.length === 1) {
+    let shadowRoot = legacy_events_page[0].shadowRoot;
+    observer.observe(shadowRoot, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
+    adoptCSS(shadowRoot, "siemMonkey.css");
+  } else {
+    // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
+    // CSS уже подгружен
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
+  }
+}
+
+function insertMonkeyIntoUI(product) {
   let siem_title_elem = $("body > pt-siem-app-root > pt-siem-header > header > mc-navbar > mc-navbar-container:nth-child(1) > pt-siem-navbar-brand > a > mc-navbar-title");
   let siem_title = siem_title_elem.text();
 
   let nad_title_elem = $(".mc-navbar-title:first");
   let nad_title_elem_text = nad_title_elem.text();
   
- if (siem_title === "MaxPatrol 10") {
+  if (product === "SIEM") {
     makeSideBarGreatAgain();
     let navbaritem = $(".mc-navbar-logo");
     navbaritem.append(`<img class="monkeydropbtn" width="32" height="32" src="${icondataurl}" alt="" />`);
@@ -195,8 +246,7 @@ function insertMonkeyIntoUI() {
         }
       }
     );
-  }
-  else if (nad_title_elem_text === "NAD") {
+  } else if (product === "NAD") {
     var navbaritem = $(".mc-navbar-logo");
     navbaritem.after(`<img class="monkeydropbtn" width="32" height="32" src="${icondataurl}" alt="" />`);
     $(".monkeydropbtn")
@@ -231,10 +281,20 @@ function makeSideBarGreatAgain()
     {
       iframe = $('#legacyApplicationFrame'); 
       sidebar = $('.mc-sidebar_right', iframe.contents()); //new ui R25
+      if (sidebar.length == 0) {
+        // shadowRoot
+        let legacy_events = $("legacy-events-page");
+        if (legacy_events.length === 1) {
+          let shadowRoot = legacy_events[0].shadowRoot;
+          if (shadowRoot) {
+            sidebar = $(shadowRoot).find('.mc-sidebar_right');
+          }
+        }
+      }
     }
   }
   icons = sidebar.find(".pt-icons").first();
-  icons.before(`<img class="blinkAndRemove" width="16" height="16" src="${icon16dateurl}" alt="" />`)
+  icons.before(`<img class="blinkAndRemove sidebarWithMonkey" width="16" height="16" src="${icon16dateurl}" alt="" />`)
   sidebar.attr('style', function(i, style){   
       return style && style.replace(/(max-width: )(\d+)(px)/, '$131337$3');
   });
@@ -244,7 +304,7 @@ function makeSideBarGreatAgain()
   .delay(100).fadeTo(100,0.5)
   .delay(100).fadeTo(100,1)
   .delay(100).fadeTo(100,0.5)
-  .delay(100).fadeTo(100,1, function(){$(this).remove();});
+  .delay(100).fadeTo(100,1, function(){$(this).hide();});
 }
 
 function extractLast( term ) {
@@ -426,6 +486,13 @@ let observer = new MutationObserver(async mutations => {
    }
 });
 
+
+SearchBananas(
+  siem_bananas,
+  siemMonkeyBind,
+  500,
+  6000
+);
 
 async function GetOptionsFromStorage(){
   options  = await getStorageData('options');
@@ -616,9 +683,7 @@ function ProcessHandler(addedNode) {
       count = 1;
 
       let time = getTimeValueFromSidebar();
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      let timeto = timeParsed.toDate();
-      let ttimeto = timeto.getTime()/1000 + 3600; // на 1 час вперёд
+      let ttimeto = time + 3600; // на 1 час вперёд
 
       gtfrom = ttimeto - 86400; // и на сутки назад
       gtto = ttimeto;
@@ -692,10 +757,7 @@ function ProcessHandler(addedNode) {
       // TODO: придумать способ задавать этот параметр при необходимости
       count = 1000;
 
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      let timeto = timeParsed.toDate();
-      let ttimeto = timeto.getTime()/1000;
-
+      let ttimeto = time;
       gtfrom = ttimeto - 86400;
       gtto = ttimeto;
       if(msgid === '1' || msgid === '4688') {
@@ -755,11 +817,8 @@ function ProcessHandler(addedNode) {
 
       let time = getTimeValueFromSidebar();
 
-      let timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-      let timeto = timeParsed.toDate();
-      let ttimeto = timeto.getTime()/1000 + 86400; // на сутки вперед
-
-      gtfrom = ttimeto - 86400 - 600; // и на 10 минут назад на всякий случай
+      let ttimeto = time + 86400; // на сутки вперед
+      gtfrom = time - 600; // и на 10 минут назад на всякий случай
       gtto = ttimeto;
 
 
@@ -817,7 +876,9 @@ function getTimeValueFromSidebar() {
     let shadowRoot = legacy_events_page[0].shadowRoot;
     // class="layout-padding_no-left mc-sidebar-header__title flex ng-binding"
     let time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", shadowRoot).text().trim("↵");
-    return time;
+    // SIEM don't want milliseconds, microseconds and nanoseconds
+    return_time = getDateFromFormat(time, date_format)/1000;
+    return return_time;
   }
 
   let time = $("body > section > div > div > events-page > div > section > mc-sidebar.mc-sidebar_wide.mc-sidebar_right.ng-scope.ng-isolate-scope > mc-sidebar-opened > header > div.layout-row.flex > div > div").text().trim("↵");
@@ -828,7 +889,9 @@ function getTimeValueFromSidebar() {
       time = $("mc-sidebar-opened > header > div.layout-row.flex > div > div", iframe.contents()).text().trim("↵");
     }
   }
-  return time;
+  // SIEM don't want milliseconds, microseconds and nanoseconds
+  return_time = getDateFromFormat(time, date_format)/1000;
+  return return_timetime;
 }
 
 function ExternalLink(addedNode) {
@@ -1189,7 +1252,7 @@ async function ipfieldChangeObserver(addedNode, fieldname){
         src_ip = $(changedElement).text();
         let addr = ipaddr.parse(src_ip);
         let range = addr.range();
-        
+
         if('options' in options && 'iplinks' in options.options){
           let services = [...options.options.iplinks].reverse();
           services.forEach(e => {
@@ -1203,7 +1266,6 @@ async function ipfieldChangeObserver(addedNode, fieldname){
       500,
       src_ip_span)
     );
-
     span_to_observe = addedNode.querySelector(`div[title=\"${fieldname}\"] + div span.pt-preserve-white-space`);
     if (span_to_observe) {
       ip_span_observer.observe(span_to_observe,{childList: true, subtree: true, characterDataOldValue: true,});
@@ -1319,13 +1381,9 @@ function AddDownloadNormalizedSubeventsIcon(addedNode) {
     let siemUrl = window.location.origin;
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-    timeto = timeParsed.toDate();
-    ttimeto = timeto.getTime()/1000; 
-    gtfrom = ttimeto; 
-    gtto = ttimeto;
-    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownloadSubevents, "", ttimeto, ttimeto);    //TODO: со временем путаница и не удобно, надо распутаться
+    gtfrom = time; 
+    gtto = time;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownloadSubevents, "", gtfrom, gtto);    //TODO: со временем путаница и не удобно, надо распутаться
   })
 }
 
@@ -1349,12 +1407,9 @@ function AddDownloadNormalizedIcon(addedNode) {
     let siemUrl = window.location.origin;
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-    timeto = timeParsed.toDate();
-    ttimeto = timeto.getTime()/1000; 
-    gtfrom = ttimeto; 
-    gtto = ttimeto;
-    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownload, "", ttimeto, ttimeto);
+    gtfrom = time; 
+    gtto = time;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processCorrleationEventDownload, "", gtfrom, gtto);
   })
 
   copy_normalized_icon.click(function ()
@@ -1362,12 +1417,9 @@ function AddDownloadNormalizedIcon(addedNode) {
     let siemUrl = window.location.origin;
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-    timeto = timeParsed.toDate();
-    ttimeto = timeto.getTime()/1000; 
-    gtfrom = ttimeto; 
-    gtto = ttimeto;
-    getdata(siemUrl, `uuid = '${uuid}'`, 1, processEventCopyToClipboard, "", ttimeto, ttimeto);
+    gtfrom = time; 
+    gtto = time;
+    getdata(siemUrl, `uuid = '${uuid}'`, 1, processEventCopyToClipboard, "", gtfrom, gtto);
   })
 }
 
@@ -1389,10 +1441,8 @@ function AddGetShareableEventLinkIcon(addedNode) {
     }
     let uuid = getFieldValueFromSidebar('uuid');
     let time = getTimeValueFromSidebar();
-    timeParsed = moment(time, "DD.MM.YYYY hh:mm::ss");
-    timeto = timeParsed.toDate();
-    ttimeto = timeto.getTime(); 
-    let link = `${siemUrl}/#/events/view?where=uuid=%22${uuid}%22&period=range&start=${ttimeto}&end=${ttimeto}`;
+    time = time*1000;
+    let link = `${siemUrl}/#/events/view?where=uuid=%22${uuid}%22&period=range&start=${time}&end=${time}`;
     console.log(link);
     navigator.clipboard.writeText(link);
     let legacy_events_page = $("legacy-events-page");
@@ -1404,7 +1454,7 @@ function AddGetShareableEventLinkIcon(addedNode) {
       searchNode = document;
     }
     let icon = $(".shareableeventlink", searchNode);
-    $('<div>Ссылка в буфере обмена...</div>').insertAfter(icon).show().delay(500).fadeOut();
+    $('<div>Ссылка в буфере обмена...</div>').insertAfter(icon).show().delay(500).fadeOut(500, function() { $(this).remove(); })
   })
 }
 
@@ -1426,7 +1476,8 @@ async function popup_event_handler() {
       fields.forEach( x => {
           params[x.name] = $(`div[title=\"${x.name}\"] + div > div > div:first`, applicationNode).text().trim('↵');
       });
-      params['time'] = getTimeValueFromSidebar();
+      let time = getTimeValueFromSidebar();
+      params['time'] = time*1000;
   }
   catch(err)
   {
@@ -1570,3 +1621,49 @@ GetOptionsFromStorage().then(() => {
     (document.head || document.documentElement).appendChild(s);
   }
 });
+
+// catch if SIEM menu is changed and there is a place for Monkey
+// should help if we switching between assets, events and other tabs
+function monitorSIEMnav() {
+  let config = {
+    attributes: false,
+    subtree: true,
+    childList: true,
+  };
+
+  let callback = function(mutationList, monkeyObserver) {
+    // if MP href changed, is monkey on sidebar?
+    // attach if needed
+    let href_main = document.location.href.split("?")[0];
+    if (oldHref !== href_main) {
+      oldHref = href_main;
+
+      let target_class = ".sidebarWithMonkey";
+      let monkey_binded = 0;
+      monkey_binded = document.querySelectorAll(target_class).length;
+      if (monkey_binded == 0) {
+        // search in shadowRoot too
+        let legacy_events = $("legacy-events-page");
+        if (legacy_events.length === 1) {
+          let shadowRoot = legacy_events[0].shadowRoot;
+          if (shadowRoot) {
+            monkey_binded = $(shadowRoot).find(target_class).length;
+          }
+        }
+      }
+      //console.log("Monkey binded: " + monkey_binded);
+      if (monkey_binded == 0) {
+        //console.log("no Monkeys here. We want Monkey!");
+        SearchBananas(
+          siem_bananas,
+          siemMonkeyBind,
+          500,
+          6000
+        );
+      }
+    }
+  }
+  let targetNode = document.getElementsByTagName("pt-siem-app-root")[0];
+  monkeyObserver = new MutationObserver(callback);
+  monkeyObserver.observe(targetNode, config);
+}
