@@ -88,10 +88,46 @@ var SearchBananas = function (selectors, callback, interval, timeout) {
   }, interval);
 };
 
+/**
+ * Adopting a constructed stylesheet to be used by the document or ShadowRoots 
+ * @param {*} doc document or ShadowRoot to adopt
+ * @param {*} path CSS file path
+ */
+function adoptCSS(doc, path) {
+  let MonkeyCSS;
+  try {
+    let css_url = chrome.runtime.getURL(path);
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      MonkeyCSS = this.response;
+    };
+    xhr.open("GET", css_url, false);
+    xhr.send();
+  } catch (err) {
+    console.log("Не удалось прочитать файл " + path);
+    return;
+  }
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(MonkeyCSS);
+  doc.adoptedStyleSheets = [sheet];
+}
+
 SearchBananas(
   siem_bananas,
   function () {
     insertMonkeyIntoUI();
+
+    // load CSS in main tree
+    let ui_css_path = chrome.runtime.getURL("libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css");
+    let ui_css_path2 = chrome.runtime.getURL("siemMonkey.css");
+    $('head').append($('<link>')
+      .attr("rel","stylesheet")
+      .attr("type","text/css")
+      .attr("href", ui_css_path));
+    $('head').append($('<link>')
+      .attr("rel","stylesheet")
+      .attr("type","text/css")
+      .attr("href", ui_css_path2));
     // Если есть элементы "legacy-overlay" и "legacy-events-page", то мы очутились в 26.1
     // Загружать CSS и вешать обработчик мутаций страницы нужно внутри shadowRoot
     let legacy_overlay = $("legacy-overlay");
@@ -103,27 +139,7 @@ SearchBananas(
         characterData: true,
         attributes: true,
       });
-      let jquery_ui_css;
-      try {
-        let css_url = chrome.runtime.getURL(
-          "libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css" // using jquery-ui css just with embedded images
-        );
-        let xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          jquery_ui_css = this.response;
-        };
-        xhr.open("GET", css_url, false);
-        xhr.send();
-      } catch (err) {
-        console.log(
-          "Не удалось прочитать файл libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"
-        );
-        return;
-      }
-
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(jquery_ui_css);
-      shadowRoot.adoptedStyleSheets = [sheet];
+      adoptCSS(shadowRoot, "libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"); // using jquery-ui css just with embedded images
     }
 
     let legacy_events_page = $("legacy-events-page");
@@ -135,26 +151,10 @@ SearchBananas(
         characterData: true,
         attributes: true,
       });
-      let siemMonkeyCSS;
-      try {
-        let css_url = chrome.runtime.getURL("siemMonkey.css");
-        let xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-          siemMonkeyCSS = this.response;
-        };
-        xhr.open("GET", css_url, false);
-        xhr.send();
-      } catch (err) {
-        console.log("Не удалось прочитать файл siemMonkey.css");
-        return;
-      }
-
-      const sheet = new CSSStyleSheet();
-      sheet.replaceSync(siemMonkeyCSS);
-      shadowRoot.adoptedStyleSheets = [sheet];
+      adoptCSS(shadowRoot, "siemMonkey.css");
     } else {
       // Старый добрый UI до 26.0 включительно - вешаем обработчик мутаций прямо на весь document,
-      // а CSSы уже и так загружены расширением
+      // CSS уже подгружен в основное дерево
       observer.observe(document, {
         childList: true,
         subtree: true,
