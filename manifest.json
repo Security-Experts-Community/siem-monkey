@@ -26,14 +26,13 @@
 			 "libs/jquery/jquery-3.5.1.min.js",
 			 "libs/jquery-ui-1.12.1/jquery-ui.min.js",
 			 "libs/d3.js/d3.v4.min.js",
-			 "libs/moment.js/moment-with-locales.js",
+			 "libs/monkey_date.js",
 			 "libs/underscore.js/underscore-min.js",
 			 "libs/textarea-helper.js/textarea-helper.js",
 			 "libs/ipaddr.js/ipaddr.min.js",
 			 "update.popup.js",
 			 "processTree.popup.js",
 			 "script.js"],
-			"css": ["siemMonkey.css","libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"],
 			"all_frames": true
         }
     ],
@@ -45,10 +44,11 @@
 		{
 			"resources": [
 			"img/icon128.png",
-	    	"siemMonkey.css",
+			"siemMonkey.css",
 			"customfilters.json",
 			"fieldaliases.json",
 			"xhr_override.js",
+			"web_accessible_resources.js",
 			"libs/jquery-ui-1.12.1/jquery-ui.min.monkey.css"
 			],
 			"matches": [
