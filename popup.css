@@ -26,7 +26,10 @@ body.loading .lds-dual-ring {
     display: block;
 }
 
-* { font-family:Roboto,Helvetica Neue,sans-serif; font-size:10px; }
+:not([class^="ui-datepicker"]) {
+  font-family: Roboto,Helvetica Neue,sans-serif;
+  font-size: 10px;
+}
 
 .parent {
     color: white;
